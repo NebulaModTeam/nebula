@@ -33,6 +33,7 @@ internal class UIOptionWindow_Patch
     private static RectTransform sliderTemplate;
     private static RectTransform inputTemplate;
     private static RectTransform subtabTemplate;
+    private static RectTransform labelTemplate;
     private static RectTransform multiplayerContent;
     private static int multiplayerTabIndex;
     private static Dictionary<string, Action> tempToUICallbacks;
@@ -53,6 +54,54 @@ internal class UIOptionWindow_Patch
     {
         tempToUICallbacks = new();
         tempMultiplayerOptions = new();
+
+        // Clear static lists from previous window creation
+        subtabButtons.Clear();
+        subtabTexts.Clear();
+        subtabContents.Clear();
+        subtabIndex = -1;
+
+        // Diagnostic: Log UI structure
+        Log.Info("=== UIOptionWindow Structure ===");
+        Log.Info($"Tab buttons count: {__instance.tabButtons.Length}");
+        for (int i = 0; i < __instance.tabButtons.Length; i++)
+        {
+            var btn = __instance.tabButtons[i];
+            Log.Info($"  Tab[{i}]: {btn.name}, pos={btn.GetComponent<RectTransform>()?.anchoredPosition}");
+        }
+        Log.Info($"Tab tweeners count: {__instance.tabTweeners.Length}");
+        for (int i = 0; i < __instance.tabTweeners.Length; i++)
+        {
+            var tw = __instance.tabTweeners[i];
+            Log.Info($"  Tweener[{i}]: {tw.name}");
+            foreach (Transform child in tw.transform)
+            {
+                Log.Info($"    Child: {child.name}");
+            }
+        }
+        Log.Info($"vsyncComp: {__instance.vsyncComp?.name}, parent: {__instance.vsyncComp?.transform.parent?.name}");
+        Log.Info($"resolutionComp: {__instance.resolutionComp?.name}, parent: {__instance.resolutionComp?.transform.parent?.name}");
+        Log.Info($"dofComp: {__instance.dofComp?.name}, parent: {__instance.dofComp?.transform.parent?.name}");
+
+        // Check Video tab list structure (Tweener[0])
+        var videoList = __instance.tabTweeners[0].transform.Find("list");
+        if (videoList != null)
+        {
+            var scrollContent = videoList.Find("scroll-view/viewport/content");
+            if (scrollContent != null)
+            {
+                Log.Info("Video tab list/scroll-view/viewport/content children:");
+                foreach (Transform child in scrollContent)
+                {
+                    Log.Info($"  {child.name} - childCount: {child.childCount}");
+                    foreach (Transform subchild in child)
+                    {
+                        Log.Info($"    {subchild.name}");
+                    }
+                }
+            }
+        }
+        Log.Info("=== End UIOptionWindow Structure ===");
 
         // Add multiplayer tab button
         var tabButtons = __instance.tabButtons;
@@ -134,7 +183,13 @@ internal class UIOptionWindow_Patch
             subtabTexts.Add(subtabText);
             subtabTemplate = subtab;
         }
-        subtabContents.Add(new GameObject("General").transform);
+        var generalContent = new GameObject("General", typeof(RectTransform));
+        var generalRect = generalContent.GetComponent<RectTransform>();
+        generalRect.anchorMin = Vector2.zero;
+        generalRect.anchorMax = Vector2.one;
+        generalRect.offsetMin = Vector2.zero;
+        generalRect.offsetMax = Vector2.zero;
+        subtabContents.Add(generalContent.transform);
 
         // Add ScrollView
         var list = Object.Instantiate(tabTweeners[3].transform.Find("list").GetComponent<RectTransform>(), multiplayerContent);
@@ -147,22 +202,60 @@ internal class UIOptionWindow_Patch
         }
         contentContainer = listContent;
 
-        // Find control templates from tab "Video"
-        checkboxTemplate = __instance.vsyncComp.transform.parent.GetComponent<RectTransform>();
-        comboBoxTemplate = __instance.resolutionComp.transform.parent.GetComponent<RectTransform>();
-        sliderTemplate = __instance.dofComp.transform.parent.GetComponent<RectTransform>();
-        inputTemplate = Object.Instantiate(checkboxTemplate, listContent, false);
-        Object.Destroy(inputTemplate.Find("CheckBox").gameObject);
-        var inputField =
-            Object.Instantiate(
-                UIRoot.instance.saveGameWindow.nameInput.transform.GetComponent<RectTransform>(),
-                inputTemplate, false);
-        var fieldPosition = checkboxTemplate.GetChild(0).GetComponent<RectTransform>().anchoredPosition;
-        inputField.anchoredPosition = new Vector2(fieldPosition.x + 6, fieldPosition.y);
-        inputField.sizeDelta = new Vector2(inputField.sizeDelta.x, 35);
+        // Find control templates - get actual controls, not their parent container
+        // The game now uses separate labels/comps containers, so we need to get individual controls
+        var videoListContent = tabTweeners[0].transform.Find("list/scroll-view/viewport/content");
+        var labelsContainer = videoListContent?.Find("labels");
+        var compsContainer = videoListContent?.Find("comps");
+
+        if (labelsContainer == null || compsContainer == null)
+        {
+            Log.Error("Failed to find labels/comps containers in Video tab!");
+            return;
+        }
+
+        // Find first checkbox, combobox, slider from comps
+        checkboxTemplate = null;
+        comboBoxTemplate = null;
+        sliderTemplate = null;
+
+        foreach (Transform child in compsContainer)
+        {
+            if (checkboxTemplate == null && child.name == "CheckBox")
+                checkboxTemplate = child.GetComponent<RectTransform>();
+            else if (comboBoxTemplate == null && child.name == "ComboBox")
+                comboBoxTemplate = child.GetComponent<RectTransform>();
+            else if (sliderTemplate == null && child.name == "Slider")
+                sliderTemplate = child.GetComponent<RectTransform>();
+        }
+
+        // Get a label template
+        labelTemplate = labelsContainer.GetChild(0)?.GetComponent<RectTransform>();
+
+        Log.Info($"Templates - checkbox:{checkboxTemplate != null}, comboBox:{comboBoxTemplate != null}, slider:{sliderTemplate != null}, label:{labelTemplate != null}");
+        if (checkboxTemplate == null || comboBoxTemplate == null || sliderTemplate == null || labelTemplate == null)
+        {
+            Log.Error("Failed to find UI templates for multiplayer options!");
+            return;
+        }
+
+        // Create input template from checkbox + input field
+        inputTemplate = CreateRowTemplate(labelTemplate, listContent);
+        var inputField = Object.Instantiate(
+            UIRoot.instance.saveGameWindow.nameInput.transform.GetComponent<RectTransform>(),
+            inputTemplate, false);
+        inputField.anchoredPosition = new Vector2(250, 0);
+        inputField.sizeDelta = new Vector2(200, 35);
         inputTemplate.gameObject.SetActive(false);
 
-        AddMultiplayerOptionsProperties();
+        try
+        {
+            AddMultiplayerOptionsProperties();
+        }
+        catch (Exception ex)
+        {
+            Log.Error($"Failed to add multiplayer options: {ex}");
+        }
 
         // Attach contents to main container
         for (var i = 0; i < subtabContents.Count; i++)
@@ -258,53 +351,61 @@ internal class UIOptionWindow_Patch
     private static void AddMultiplayerOptionsProperties()
     {
         var properties = AccessTools.GetDeclaredProperties(typeof(MultiplayerOptions));
+        Log.Info($"Adding {properties.Count} multiplayer options properties");
 
         foreach (var prop in properties)
         {
-            var displayAttr = prop.GetCustomAttribute<DisplayNameAttribute>();
-            var descriptionAttr = prop.GetCustomAttribute<DescriptionAttribute>();
-            var categoryAttribute = prop.GetCustomAttribute<CategoryAttribute>();
-            if (displayAttr == null)
+            try
             {
-                continue;
-            }
-            var index = 0;
-            if (categoryAttribute != null)
-            {
-                index = subtabTexts.FindIndex(text => text.text.Translate() == categoryAttribute.Category.Translate());
-                if (index == -1)
+                var displayAttr = prop.GetCustomAttribute<DisplayNameAttribute>();
+                var descriptionAttr = prop.GetCustomAttribute<DescriptionAttribute>();
+                var categoryAttribute = prop.GetCustomAttribute<CategoryAttribute>();
+                if (displayAttr == null)
                 {
-                    CreateSubtab(categoryAttribute.Category.Translate());
-                    index = subtabTexts.Count - 1;
+                    continue;
+                }
+                var index = 0;
+                if (categoryAttribute != null)
+                {
+                    index = subtabTexts.FindIndex(text => text.text.Translate() == categoryAttribute.Category.Translate());
+                    if (index == -1)
+                    {
+                        CreateSubtab(categoryAttribute.Category.Translate());
+                        index = subtabTexts.Count - 1;
+                    }
+                }
+                var container = subtabContents[index];
+                var anchorPosition = new Vector2(30, -40 * container.childCount);
+
+                if (prop.PropertyType == typeof(bool))
+                {
+                    CreateBooleanControl(displayAttr, descriptionAttr, prop, anchorPosition, container);
+                }
+                else if (prop.PropertyType == typeof(int) || prop.PropertyType == typeof(float) ||
+                         prop.PropertyType == typeof(ushort))
+                {
+                    CreateNumberControl(displayAttr, descriptionAttr, prop, anchorPosition, container);
+                }
+                else if (prop.PropertyType == typeof(string))
+                {
+                    CreateStringControl(displayAttr, descriptionAttr, prop, anchorPosition, container);
+                }
+                else if (prop.PropertyType.IsEnum)
+                {
+                    CreateEnumControl(displayAttr, descriptionAttr, prop, anchorPosition, container);
+                }
+                else if (prop.PropertyType == typeof(KeyboardShortcut))
+                {
+                    CreateHotkeyControl(displayAttr, descriptionAttr, prop, anchorPosition, container);
+                }
+                else
+                {
+                    Log.Warn($"MultiplayerOption property \"${prop.Name}\" of type \"{prop.PropertyType}\" not supported.");
                 }
             }
-            var container = subtabContents[index];
-            var anchorPosition = new Vector2(30, -40 * container.childCount);
-
-            if (prop.PropertyType == typeof(bool))
+            catch (Exception ex)
             {
-                CreateBooleanControl(displayAttr, descriptionAttr, prop, anchorPosition, container);
-            }
-            else if (prop.PropertyType == typeof(int) || prop.PropertyType == typeof(float) ||
-                     prop.PropertyType == typeof(ushort))
-            {
-                CreateNumberControl(displayAttr, descriptionAttr, prop, anchorPosition, container);
-            }
-            else if (prop.PropertyType == typeof(string))
-            {
-                CreateStringControl(displayAttr, descriptionAttr, prop, anchorPosition, container);
-            }
-            else if (prop.PropertyType.IsEnum)
-            {
-                CreateEnumControl(displayAttr, descriptionAttr, prop, anchorPosition, container);
-            }
-            else if (prop.PropertyType == typeof(KeyboardShortcut))
-            {
-                CreateHotkeyControl(displayAttr, descriptionAttr, prop, anchorPosition, container);
-            }
-            else
-            {
-                Log.Warn($"MultiplayerOption property \"${prop.Name}\" of type \"{prop.PropertyType}\" not supported.");
+                Log.Error($"Failed to create control for property '{prop.Name}': {ex}");
             }
         }
     }
@@ -321,15 +422,81 @@ internal class UIOptionWindow_Patch
         subtabText.text = subtabName;
         subtabTexts.Add(subtabText);
 
-        subtabContents.Add(new GameObject(subtabName).transform);
+        var content = new GameObject(subtabName, typeof(RectTransform));
+        var contentRect = content.GetComponent<RectTransform>();
+        contentRect.anchorMin = Vector2.zero;
+        contentRect.anchorMax = Vector2.one;
+        contentRect.offsetMin = Vector2.zero;
+        contentRect.offsetMax = Vector2.zero;
+        subtabContents.Add(content.transform);
+    }
+
+    private static RectTransform CreateRowTemplate(RectTransform labelTpl, Transform parent)
+    {
+        // Create a row container with label placeholder
+        var row = new GameObject("row", typeof(RectTransform));
+        var rowRect = row.GetComponent<RectTransform>();
+        rowRect.SetParent(parent, false);
+        rowRect.anchorMin = new Vector2(0, 1);
+        rowRect.anchorMax = new Vector2(1, 1);
+        rowRect.pivot = new Vector2(0, 1);
+        rowRect.sizeDelta = new Vector2(0, 40);
+
+        // Add label
+        var label = Object.Instantiate(labelTpl, rowRect, false);
+        label.anchorMin = new Vector2(0, 0.5f);
+        label.anchorMax = new Vector2(0, 0.5f);
+        label.pivot = new Vector2(0, 0.5f);
+        label.anchoredPosition = new Vector2(10, 0);
+
+        return rowRect;
+    }
+
+    private static RectTransform CreateControlRow(RectTransform controlTemplate, Transform container, Vector2 anchorPosition, string labelText)
+    {
+        // Create row container
+        var row = new GameObject("row", typeof(RectTransform));
+        var rowRect = row.GetComponent<RectTransform>();
+        rowRect.SetParent(container, false);
+        rowRect.anchorMin = new Vector2(0, 1);
+        rowRect.anchorMax = new Vector2(1, 1);
+        rowRect.pivot = new Vector2(0, 1);
+        rowRect.sizeDelta = new Vector2(0, 40);
+        rowRect.anchoredPosition = anchorPosition;
+
+        // Add label
+        var label = Object.Instantiate(labelTemplate, rowRect, false);
+        label.anchorMin = new Vector2(0, 0.5f);
+        label.anchorMax = new Vector2(0, 0.5f);
+        label.pivot = new Vector2(0, 0.5f);
+        label.anchoredPosition = new Vector2(-10, 0);
+        var labelLocalizer = label.GetComponentInChildren<Localizer>();
+        if (labelLocalizer != null) labelLocalizer.enabled = false;
+        var labelTextComp = label.GetComponentInChildren<Text>();
+        if (labelTextComp != null) labelTextComp.text = labelText;
+
+        // Add control
+        var control = Object.Instantiate(controlTemplate, rowRect, false);
+        control.anchorMin = new Vector2(0, 0.5f);
+        control.anchorMax = new Vector2(0, 0.5f);
+        control.pivot = new Vector2(0, 0.5f);
+        control.anchoredPosition = new Vector2(250, 0);
+
+        return rowRect;
     }
 
     private static void CreateBooleanControl(DisplayNameAttribute control, DescriptionAttribute descriptionAttr,
         PropertyInfo prop, Vector2 anchorPosition, Transform container)
     {
-        var element = Object.Instantiate(checkboxTemplate, container, false);
-        SetupUIElement(element, control, descriptionAttr, prop, anchorPosition);
-        var toggle = element.GetComponentInChildren<UIToggle>();
+        var row = CreateControlRow(checkboxTemplate, container, anchorPosition, control.DisplayName.Translate());
+        row.name = prop.Name;
+        if (descriptionAttr != null)
+        {
+            row.gameObject.AddComponent<Tooltip>();
+            row.gameObject.GetComponent<Tooltip>().Title = control.DisplayName.Translate();
+            row.gameObject.GetComponent<Tooltip>().Text = descriptionAttr.Description.Translate();
+        }
+        var toggle = row.GetComponentInChildren<UIToggle>();
         toggle.toggle.onValueChanged.RemoveAllListeners();
         toggle.toggle.onValueChanged.AddListener(value =>
         {
@@ -362,14 +529,20 @@ internal class UIOptionWindow_Patch
         var rangeAttr = prop.GetCustomAttribute<UIRangeAttribute>();
         var sliderControl = rangeAttr is { Slider: true };
 
-        var element = Object.Instantiate(sliderControl ? sliderTemplate : inputTemplate, container, false);
-        SetupUIElement(element, control, descriptionAttr, prop, anchorPosition);
+        var row = CreateControlRow(sliderControl ? sliderTemplate : comboBoxTemplate, container, anchorPosition, control.DisplayName.Translate());
+        row.name = prop.Name;
+        if (descriptionAttr != null)
+        {
+            row.gameObject.AddComponent<Tooltip>();
+            row.gameObject.GetComponent<Tooltip>().Title = control.DisplayName.Translate();
+            row.gameObject.GetComponent<Tooltip>().Text = descriptionAttr.Description.Translate();
+        }
 
         var isFloatingPoint = prop.PropertyType == typeof(float) || prop.PropertyType == typeof(double);
 
         if (sliderControl)
         {
-            var slider = element.GetComponentInChildren<Slider>();
+            var slider = row.GetComponentInChildren<Slider>();
             slider.minValue = rangeAttr.Min;
             slider.maxValue = rangeAttr.Max;
             slider.wholeNumbers = !isFloatingPoint;
@@ -389,7 +562,7 @@ internal class UIOptionWindow_Patch
         }
         else
         {
-            var input = element.GetComponentInChildren<InputField>();
+            var input = row.GetComponentInChildren<InputField>();
 
             input.onValueChanged.RemoveAllListeners();
             input.onValueChanged.AddListener(str =>
@@ -438,10 +611,26 @@ internal class UIOptionWindow_Patch
         var characterLimitAttr = prop.GetCustomAttribute<UICharacterLimitAttribute>();
         var contentTypeAttr = prop.GetCustomAttribute<UIContentTypeAttribute>();
 
-        var element = Object.Instantiate(inputTemplate, container, false);
-        SetupUIElement(element, control, descriptionAttr, prop, anchorPosition);
+        var row = CreateControlRow(comboBoxTemplate, container, anchorPosition, control.DisplayName.Translate());
+        row.name = prop.Name;
+        if (descriptionAttr != null)
+        {
+            row.gameObject.AddComponent<Tooltip>();
+            row.gameObject.GetComponent<Tooltip>().Title = control.DisplayName.Translate();
+            row.gameObject.GetComponent<Tooltip>().Text = descriptionAttr.Description.Translate();
+        }
 
-        var input = element.GetComponentInChildren<InputField>();
+        // Replace combo with input field
+        var comboToRemove = row.GetComponentInChildren<UIComboBox>();
+        if (comboToRemove != null) Object.Destroy(comboToRemove.gameObject);
+
+        var inputField = Object.Instantiate(
+            UIRoot.instance.saveGameWindow.nameInput.transform.GetComponent<RectTransform>(),
+            row, false);
+        inputField.anchoredPosition = new Vector2(250, 0);
+        inputField.sizeDelta = new Vector2(200, 35);
+
+        var input = inputField.GetComponent<InputField>();
         if (characterLimitAttr != null)
         {
             input.characterLimit = characterLimitAttr.Max;
@@ -467,9 +656,15 @@ internal class UIOptionWindow_Patch
     private static void CreateEnumControl(DisplayNameAttribute control, DescriptionAttribute descriptionAttr, PropertyInfo prop,
         Vector2 anchorPosition, Transform container)
     {
-        var element = Object.Instantiate(comboBoxTemplate, container, false);
-        SetupUIElement(element, control, descriptionAttr, prop, anchorPosition);
-        var combo = element.GetComponentInChildren<UIComboBox>();
+        var row = CreateControlRow(comboBoxTemplate, container, anchorPosition, control.DisplayName.Translate());
+        row.name = prop.Name;
+        if (descriptionAttr != null)
+        {
+            row.gameObject.AddComponent<Tooltip>();
+            row.gameObject.GetComponent<Tooltip>().Title = control.DisplayName.Translate();
+            row.gameObject.GetComponent<Tooltip>().Text = descriptionAttr.Description.Translate();
+        }
+        var combo = row.GetComponentInChildren<UIComboBox>();
         combo.Items = Enum.GetNames(prop.PropertyType).ToList();
         combo.ItemsData = Enum.GetValues(prop.PropertyType).OfType<int>().ToList();
         combo.onItemIndexChange.RemoveAllListeners();
@@ -514,8 +709,16 @@ internal class UIOptionWindow_Patch
             element.gameObject.GetComponent<Tooltip>().Title = display.DisplayName.Translate();
             element.gameObject.GetComponent<Tooltip>().Text = descriptionAttr.Description.Translate();
         }
-        element.GetComponent<Localizer>().enabled = false;
-        element.GetComponent<Text>().text = display.DisplayName.Translate();
+        var localizer = element.GetComponentInChildren<Localizer>();
+        if (localizer != null)
+        {
+            localizer.enabled = false;
+        }
+        var text = element.GetComponentInChildren<Text>();
+        if (text != null)
+        {
+            text.text = display.DisplayName.Translate();
+        }
     }
 
     public class Tooltip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler

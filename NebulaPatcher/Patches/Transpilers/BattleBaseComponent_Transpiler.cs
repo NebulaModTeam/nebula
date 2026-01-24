@@ -119,7 +119,7 @@ internal class BattleBaseComponent_Transpiler
         var mainPlayer = GameMain.data.mainPlayer;
         lock (mainPlayer)
         {
-            mainPlayer.SetSandCount(mainPlayer.sandCount + sandCount);
+            mainPlayer.SetSandCount(mainPlayer.sandCount + sandCount, (ESandSource)0);
             mainPlayer.NotifySandCollectFromTrash(sandCount);
             trashSystem.RemoveTrash(trashId);
         }

@@ -47,7 +47,7 @@ internal class Player_Patch
             }
             else
             {
-                __instance.SetSandCount(__instance.sandCount + gainedSand);
+                __instance.SetSandCount(__instance.sandCount + gainedSand, (ESandSource)0);
             }
         }
         return false;
@@ -56,7 +56,7 @@ internal class Player_Patch
 
     [HarmonyPrefix]
     [HarmonyPatch(nameof(Player.SetSandCount))]
-    public static bool SetSandCount_Prefix(long newSandCount)
+    public static bool SetSandCount_Prefix(long newSandCount, ESandSource sandSource)
     {
         if (!Multiplayer.IsActive)
         {

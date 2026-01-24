@@ -15,7 +15,10 @@
             <PackageVersion></PackageVersion>
             <ProjectAssetsJsonPath>$(BaseIntermediateOutputPath)project.assets.json</ProjectAssetsJsonPath>
         </PropertyGroup>
-        <Exec Command="powershell -Command &quot;$projectAssets = Get-Content $(ProjectAssetsJsonPath) -Raw | ConvertFrom-Json; $packageKey = $projectAssets.libraries.PSObject.Properties.Name | Where-Object { $_ -match 'DysonSphereProgram.GameLibs' }; $version = $packageKey.Split('/')[1].Split('-')[0]; Write-Output $version&quot;" ConsoleToMSBuild="true">
+        <Exec Condition="$([MSBuild]::IsOSPlatform('Windows'))" Command="powershell -Command &quot;$projectAssets = Get-Content $(ProjectAssetsJsonPath) -Raw | ConvertFrom-Json; $packageKey = $projectAssets.libraries.PSObject.Properties.Name | Where-Object { $_ -match 'DysonSphereProgram.GameLibs' }; $version = $packageKey.Split('/')[1].Split('-')[0]; Write-Output $version&quot;" ConsoleToMSBuild="true">
+            <Output TaskParameter="ConsoleOutput" PropertyName="PackageVersion" />
+        </Exec>
+        <Exec Condition="!$([MSBuild]::IsOSPlatform('Windows'))" Command="grep -oP 'DysonSphereProgram\.GameLibs/\K[^-&quot;]+' $(ProjectAssetsJsonPath) | head -1" ConsoleToMSBuild="true">
             <Output TaskParameter="ConsoleOutput" PropertyName="PackageVersion" />
         </Exec>
         <PropertyGroup>

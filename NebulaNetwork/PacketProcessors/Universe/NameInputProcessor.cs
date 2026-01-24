@@ -43,16 +43,15 @@ internal class NameInputProcessor : PacketProcessor<NameInputPacket>
                 {
                     var star = galaxyData.StarById(packet.StarIds[i]);
                     star.overrideName = packet.Names[i];
-                    star.NotifyOnDisplayNameChange();
+                    galaxyData.NotifyAstroNameChange(star.id * 100);
                 }
                 else
                 {
                     var planet = galaxyData.PlanetById(packet.PlanetIds[i]);
                     planet.overrideName = packet.Names[i];
-                    planet.NotifyOnDisplayNameChange();
+                    galaxyData.NotifyAstroNameChange(planet.id);
                 }
             }
-            galaxyData.NotifyAstroNameChange();
             if (Multiplayer.Session.IsInLobby)
             {
                 // Refresh star name in lobby
