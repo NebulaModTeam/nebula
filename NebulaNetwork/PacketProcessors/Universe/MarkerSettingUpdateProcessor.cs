@@ -59,7 +59,7 @@ internal class MarkerSettingUpdateProcessor : PacketProcessor<MarkerSettingUpdat
                     if (name == "Entity")
                     {
                         _markerOwnerType = val;
-                        Log.Info($"CreateMarkerTodoModule: Found Entity owner type: {val}");
+                        Log.Debug($"CreateMarkerTodoModule: Found Entity owner type: {val}");
                         break;
                     }
                 }
@@ -84,7 +84,7 @@ internal class MarkerSettingUpdateProcessor : PacketProcessor<MarkerSettingUpdat
 
             if (result is TodoModule todoModule)
             {
-                Log.Info($"CreateMarkerTodoModule: Created TodoModule for marker {markerId}");
+                Log.Debug($"CreateMarkerTodoModule: Created TodoModule for marker {markerId}");
                 return todoModule;
             }
 
@@ -173,7 +173,12 @@ internal class MarkerSettingUpdateProcessor : PacketProcessor<MarkerSettingUpdat
                     if (marker.todo != null)
                     {
                         marker.todo.content = packet.StringValue;
-                        Log.Debug($"SetTodoContent: Updated existing todo content for marker {packet.MarkerId}");
+                        // Apply color data if provided (colors and text are sent together)
+                        if (packet.ColorData != null)
+                        {
+                            marker.todo.contentColorIndex = packet.ColorData;
+                        }
+                        Log.Debug($"SetTodoContent: Updated todo for marker {packet.MarkerId}, colors={packet.ColorData?.Length ?? 0}");
                     }
                     else
                     {
@@ -187,6 +192,10 @@ internal class MarkerSettingUpdateProcessor : PacketProcessor<MarkerSettingUpdat
                             // Link existing pool todo to marker and update content
                             marker.todo = existingTodo;
                             marker.todo.content = packet.StringValue;
+                            if (packet.ColorData != null)
+                            {
+                                marker.todo.contentColorIndex = packet.ColorData;
+                            }
                             Log.Debug($"SetTodoContent: Found existing todo in pool, linked to marker {packet.MarkerId}");
                         }
                         else
@@ -197,7 +206,11 @@ internal class MarkerSettingUpdateProcessor : PacketProcessor<MarkerSettingUpdat
                             {
                                 marker.todo = newTodo;
                                 marker.todo.content = packet.StringValue;
-                                Log.Info($"SetTodoContent: Created and linked TodoModule for marker {packet.MarkerId}");
+                                if (packet.ColorData != null)
+                                {
+                                    marker.todo.contentColorIndex = packet.ColorData;
+                                }
+                                Log.Debug($"SetTodoContent: Created and linked TodoModule for marker {packet.MarkerId}");
                             }
                             else
                             {
@@ -243,9 +256,9 @@ internal class MarkerSettingUpdateProcessor : PacketProcessor<MarkerSettingUpdat
             {
                 marker.InternalUpdate();
             }
-            catch (System.Exception e)
+            catch (System.Exception)
             {
-                Log.Info($"MarkerSettingUpdatePacket: InternalUpdate failed - {e.Message}");
+                // InternalUpdate may fail if marker visuals aren't fully initialized yet
             }
         }
     }

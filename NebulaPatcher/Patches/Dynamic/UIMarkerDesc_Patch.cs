@@ -1,7 +1,6 @@
 #region
 
 using HarmonyLib;
-using NebulaModel.Logger;
 using NebulaModel.Packets.Universe;
 using NebulaWorld;
 
@@ -75,9 +74,12 @@ internal class UIMarkerDesc_Patch
         {
             return;
         }
+        // Send both content and colors together - they're logically connected
         Multiplayer.Session.Network.SendPacket(
             new MarkerSettingUpdatePacket(__instance.factory.planetId, __instance.marker.id,
-                MarkerSettingEvent.SetTodoContent, stringValue: __instance.marker.todo?.content));
+                MarkerSettingEvent.SetTodoContent,
+                stringValue: __instance.marker.todo?.content,
+                colorData: __instance.marker.todo?.contentColorIndex));
     }
 
     [HarmonyPostfix]

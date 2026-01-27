@@ -5,7 +5,7 @@ public class MarkerSettingUpdatePacket
     public MarkerSettingUpdatePacket() { }
 
     public MarkerSettingUpdatePacket(int planetId, int markerId, MarkerSettingEvent settingEvent, int intValue = 0,
-        float floatValue = 0f, string stringValue = null)
+        float floatValue = 0f, string stringValue = null, short[] colorData = null)
     {
         PlanetId = planetId;
         MarkerId = markerId;
@@ -13,6 +13,7 @@ public class MarkerSettingUpdatePacket
         IntValue = intValue;
         FloatValue = floatValue;
         StringValue = stringValue;
+        ColorData = colorData;
     }
 
     public int PlanetId { get; set; }
@@ -21,6 +22,7 @@ public class MarkerSettingUpdatePacket
     public int IntValue { get; set; }
     public float FloatValue { get; set; }
     public string StringValue { get; set; }
+    public short[] ColorData { get; set; }
 }
 
 public enum MarkerSettingEvent
