@@ -37,6 +37,7 @@ public class GameStatesManager : IDisposable
     private byte[] spaceSectorBinaryData;
     private byte[] milestoneSystemBinaryData;
     private byte[] trashSystemBinaryData;
+    private byte[] galacticDigitalBinaryData;
 
     public GameStatesManager()
     {
@@ -52,6 +53,7 @@ public class GameStatesManager : IDisposable
         spaceSectorBinaryData = null;
         milestoneSystemBinaryData = null;
         trashSystemBinaryData = null;
+        galacticDigitalBinaryData = null;
         GC.SuppressFinalize(this);
     }
 
@@ -196,6 +198,11 @@ public class GameStatesManager : IDisposable
 
             case GlobalGameDataResponse.EDataType.TrashSystem:
                 trashSystemBinaryData = packet.BinaryData;
+                Log.Info("Waiting for GalacticDigital data from the server...");
+                break;
+
+            case GlobalGameDataResponse.EDataType.GalacticDigital:
+                galacticDigitalBinaryData = packet.BinaryData;
                 Log.Info("Waiting for the remaining data from the server...");
                 break;
 
@@ -277,5 +284,53 @@ public class GameStatesManager : IDisposable
             }
             trashSystemBinaryData = null;
         }
+        if (galacticDigitalBinaryData != null)
+        {
+            Log.Info("Parsing GalacticDigital data from the server...");
+            using (var reader = new BinaryUtils.Reader(galacticDigitalBinaryData))
+            {
+                data.galacticDigital.Import(reader.BinaryReader);
+            }
+            galacticDigitalBinaryData = null;
+
+            // Refresh marker rendering after import
+            RefreshMarkerRendering();
+        }
     }
+
+    private static void RefreshMarkerRendering()
+    {
+        try
+        {
+            var galacticDigital = GameMain.data?.galacticDigital;
+            if (galacticDigital == null) return;
+
+            var instanceType = galacticDigital.GetType();
+            var bindingFlags = System.Reflection.BindingFlags.Instance |
+                              System.Reflection.BindingFlags.Public |
+                              System.Reflection.BindingFlags.NonPublic;
+
+            // Try to call RecollectMarkerData directly
+            var recollectMethod = instanceType.GetMethod("RecollectMarkerData", bindingFlags);
+            if (recollectMethod != null)
+            {
+                recollectMethod.Invoke(galacticDigital, null);
+                return;
+            }
+
+            // Fallback: Try markerRenderer field
+            var rendererField = instanceType.GetField("markerRenderer", bindingFlags);
+            if (rendererField != null)
+            {
+                var renderer = rendererField.GetValue(galacticDigital);
+                var rendererRecollect = renderer?.GetType().GetMethod("RecollectMarkerData", bindingFlags);
+                rendererRecollect?.Invoke(renderer, null);
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Log.Warn($"RefreshMarkerRendering: {ex.Message}");
+        }
+    }
+
 }

@@ -17,6 +17,7 @@ public class GlobalGameDataResponse
         SpaceSector,
         MilestoneSystem,
         TrashSystem,
+        GalacticDigital,
         Ready
     }
 
