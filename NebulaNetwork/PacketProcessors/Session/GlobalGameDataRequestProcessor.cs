@@ -88,4 +88,5 @@ internal class GlobalGameDataRequestProcessor : PacketProcessor<GlobalGameDataRe
 
         conn.SendPacket(new GameStateSaveInfoPacket(GameStatesManager.LastSaveTime));
     }
+
 }

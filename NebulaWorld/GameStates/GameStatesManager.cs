@@ -293,43 +293,6 @@ public class GameStatesManager : IDisposable
             }
             galacticDigitalBinaryData = null;
 
-            // Refresh marker rendering after import
-            RefreshMarkerRendering();
-        }
-    }
-
-    private static void RefreshMarkerRendering()
-    {
-        try
-        {
-            var galacticDigital = GameMain.data?.galacticDigital;
-            if (galacticDigital == null) return;
-
-            var instanceType = galacticDigital.GetType();
-            var bindingFlags = System.Reflection.BindingFlags.Instance |
-                              System.Reflection.BindingFlags.Public |
-                              System.Reflection.BindingFlags.NonPublic;
-
-            // Try to call RecollectMarkerData directly
-            var recollectMethod = instanceType.GetMethod("RecollectMarkerData", bindingFlags);
-            if (recollectMethod != null)
-            {
-                recollectMethod.Invoke(galacticDigital, null);
-                return;
-            }
-
-            // Fallback: Try markerRenderer field
-            var rendererField = instanceType.GetField("markerRenderer", bindingFlags);
-            if (rendererField != null)
-            {
-                var renderer = rendererField.GetValue(galacticDigital);
-                var rendererRecollect = renderer?.GetType().GetMethod("RecollectMarkerData", bindingFlags);
-                rendererRecollect?.Invoke(renderer, null);
-            }
-        }
-        catch (System.Exception ex)
-        {
-            Log.Warn($"RefreshMarkerRendering: {ex.Message}");
         }
     }
 
