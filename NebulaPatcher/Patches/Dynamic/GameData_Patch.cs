@@ -87,6 +87,7 @@ internal class GameData_Patch
                 }
                 planet.factory = __instance.factories[factoryIndex];
             }
+
             // Initial FactoryProductionStat for other in-game stats checking functions
             if (GameMain.statistics.production.factoryStatPool[factoryIndex] == null)
             {
@@ -430,4 +431,5 @@ internal class GameData_Patch
         __result = __instance.dysonSpheres[starIndex];
         return false;
     }
+
 }

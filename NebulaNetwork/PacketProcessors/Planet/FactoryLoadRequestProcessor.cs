@@ -76,6 +76,6 @@ public class FactoryLoadRequestProcessor : PacketProcessor<FactoryLoadRequest>
                 buffer[id].HandleFullHp(GameMain.data, spaceSector.skillSystem);
             }
         }
-
     }
+
 }

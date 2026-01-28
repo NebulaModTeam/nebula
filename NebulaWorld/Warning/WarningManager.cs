@@ -17,6 +17,7 @@ public class WarningManager : IDisposable
 {
     public readonly ToggleSwitch IsIncomingMonitorPacket = new();
     public readonly ToggleSwitch IsIncomingBroadcast = new();
+    public readonly ToggleSwitch IsIncomingMarkerPacket = new();
     private int idleCycle;
 
     private ConcurrentBag<NebulaConnection> requesters = [];

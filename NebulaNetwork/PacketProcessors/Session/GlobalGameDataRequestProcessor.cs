@@ -1,6 +1,7 @@
 ﻿#region
 
 using NebulaAPI.Packets;
+using NebulaModel.Logger;
 using NebulaModel.Networking;
 using NebulaModel.Packets;
 using NebulaModel.Packets.GameStates;
@@ -67,6 +68,14 @@ internal class GlobalGameDataRequestProcessor : PacketProcessor<GlobalGameDataRe
 
             conn.SendPacket(new GlobalGameDataResponse(
                 GlobalGameDataResponse.EDataType.TrashSystem, writer.CloseAndGetBytes()));
+        }
+
+        using (var writer = new BinaryUtils.Writer())
+        {
+            GameMain.data.galacticDigital.Export(writer.BinaryWriter);
+
+            conn.SendPacket(new GlobalGameDataResponse(
+                GlobalGameDataResponse.EDataType.GalacticDigital, writer.CloseAndGetBytes()));
         }
 
         using (var writer = new BinaryUtils.Writer())
