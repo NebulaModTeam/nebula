@@ -1,8 +1,10 @@
 ﻿#region
 
+using System;
 using System.Diagnostics.CodeAnalysis;
 using HarmonyLib;
 using NebulaAPI;
+using NebulaModel.Logger;
 using NebulaModel.Packets.Universe;
 using NebulaWorld;
 using UnityEngine;
@@ -73,6 +75,41 @@ internal class UIPlanetDetail_Patch
         if (Multiplayer.IsActive && Multiplayer.Session.IsInLobby)
         {
             GameMain.history.universeObserveLevel = SimulatedWorld.GetUniverseObserveLevel();
+        }
+    }
+
+    /// <summary>
+    /// Show the memo button for planets that have memos in the global pool,
+    /// even if the factory isn't loaded (unvisited planets).
+    /// </summary>
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(UIPlanetDetail.RefreshTabPanel))]
+    public static void RefreshTabPanel_Postfix(UIPlanetDetail __instance)
+    {
+        if (!Multiplayer.IsActive) return;
+        if (__instance.planet == null) return;
+
+        // If memoBtn is already active, nothing to do
+        if (__instance.memoBtn.gameObject.activeSelf) return;
+
+        // Check if there's a memo in the global todos pool for this planet
+        var todos = GameMain.data?.galacticDigital?.todos;
+        if (todos == null)
+        {
+            return;
+        }
+
+        var planetId = __instance.planet.id;
+        for (int i = 1; i < todos.cursor; i++)
+        {
+            ref var todo = ref todos.buffer[i];
+            if (todo.id == i && todo.ownerId == planetId &&
+                todo.ownerType == ETodoModuleOwnerType.Astro)
+            {
+                // Found a memo for this planet - show the memo button
+                __instance.memoBtn.gameObject.SetActive(true);
+                break;
+            }
         }
     }
 }
