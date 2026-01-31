@@ -1,4 +1,5 @@
 ﻿namespace NebulaModel.DataStructures.Chat;
+
 public enum ChatViewMode
 {
     TMPro,

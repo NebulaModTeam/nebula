@@ -56,7 +56,7 @@ internal class Player_Patch
 
     [HarmonyPrefix]
     [HarmonyPatch(nameof(Player.SetSandCount))]
-    public static bool SetSandCount_Prefix(long newSandCount, ESandSource sandSource)
+    public static bool SetSandCount_Prefix(long newSandCount)
     {
         if (!Multiplayer.IsActive)
         {
