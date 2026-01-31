@@ -1,4 +1,4 @@
-namespace NebulaModel.Packets.Universe;
+﻿namespace NebulaModel.Packets.Universe;
 
 public class MarkerSettingUpdatePacket
 {
@@ -36,5 +36,6 @@ public enum MarkerSettingEvent
     SetVisibility = 6,
     SetDetailLevel = 7,
     SetHeight = 8,
-    SetRadius = 9
+    SetRadius = 9,
+    SetDigitalSignalId = 10
 }

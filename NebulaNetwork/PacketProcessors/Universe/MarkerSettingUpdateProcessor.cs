@@ -1,4 +1,4 @@
-#region
+﻿#region
 
 using NebulaAPI.Packets;
 using NebulaModel.Logger;
@@ -94,6 +94,10 @@ internal class MarkerSettingUpdateProcessor : PacketProcessor<MarkerSettingUpdat
                 case MarkerSettingEvent.SetRadius:
                     marker.SetRadius(packet.FloatValue);
                     break;
+
+                case MarkerSettingEvent.SetDigitalSignalId:
+                    marker.SetDigitalSignalId(packet.IntValue);
+                    break;
             }
 
             try
@@ -102,6 +106,13 @@ internal class MarkerSettingUpdateProcessor : PacketProcessor<MarkerSettingUpdat
             }
             catch
             {
+            }
+
+            //Update UI Window too if it is viewing the current marker
+            var window = UIRoot.instance.uiGame.markerWindow;
+            if (window.active && window.markerId == packet.MarkerId && window.factory == factory)
+            {
+                window.markerDesc.Refresh();
             }
         }
     }

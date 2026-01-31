@@ -49,6 +49,10 @@ internal class MonitorSettingUpdateProcessor : PacketProcessor<MonitorSettingUpd
                         pool[packet.MonitorId].SetSystemWarningSignalId(packet.Parameter1);
                         break;
 
+                    case MonitorSettingEvent.SetDigitalSignalId:
+                        pool[packet.MonitorId].SetDigitalSignalId(packet.Parameter1);
+                        break;
+
                     case MonitorSettingEvent.SetCargoFilter:
                         pool[packet.MonitorId].SetCargoFilter(packet.Parameter1);
                         break;
@@ -97,6 +101,10 @@ internal class MonitorSettingUpdateProcessor : PacketProcessor<MonitorSettingUpd
                     case MonitorSettingEvent.SetSystemWarningSignalId:
                         var sprite = LDB.signals.IconSprite(packet.Parameter1);
                         uIMonitor.iconTagImage.sprite = sprite ? sprite : uIMonitor.tagNotSelectedSprite;
+                        break;
+
+                    case MonitorSettingEvent.SetDigitalSignalId:
+                        uIMonitor.digitalSignalIdInput.SetTextWithoutNotify((packet.Parameter1 == 0) ? "" : packet.Parameter1.ToString());
                         break;
 
                     case MonitorSettingEvent.SetCargoFilter:

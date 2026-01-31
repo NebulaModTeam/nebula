@@ -29,9 +29,10 @@ public enum MonitorSettingEvent
     SetMonitorMode = 3,
     SetSystemWarningMode = 4,
     SetSystemWarningSignalId = 5,
-    SetCargoFilter = 6,
-    SetTargetCargoBytes = 7,
-    SetPeriodTickCount = 8,
-    SetTargetBelt = 9,
-    SetSpawnOperator = 10
+    SetDigitalSignalId = 6,
+    SetCargoFilter = 7,
+    SetTargetCargoBytes = 8,
+    SetPeriodTickCount = 9,
+    SetTargetBelt = 10,
+    SetSpawnOperator = 11
 }

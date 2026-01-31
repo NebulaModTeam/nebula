@@ -110,6 +110,19 @@ internal class MonitorComponent_Patch
     }
 
     [HarmonyPrefix]
+    [HarmonyPatch(nameof(MonitorComponent.SetDigitalSignalId))]
+    public static void SetDigitalSignalId(MonitorComponent __instance, int __0)
+    {
+        if (!Multiplayer.IsActive || Multiplayer.Session.Warning.IsIncomingMonitorPacket)
+        {
+            return;
+        }
+        var planetId = GameMain.data.localPlanet == null ? -1 : GameMain.data.localPlanet.id;
+        Multiplayer.Session.Network.SendPacketToLocalStar(
+            new MonitorSettingUpdatePacket(planetId, __instance.id, MonitorSettingEvent.SetDigitalSignalId, __0));
+    }
+
+    [HarmonyPrefix]
     [HarmonyPatch(nameof(MonitorComponent.SetCargoFilter))]
     public static void SetCargoFilter_Prefix(MonitorComponent __instance, int __0)
     {

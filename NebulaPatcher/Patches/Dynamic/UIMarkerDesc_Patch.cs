@@ -1,4 +1,4 @@
-#region
+﻿#region
 
 using HarmonyLib;
 using NebulaModel.Packets.Universe;
@@ -80,6 +80,24 @@ internal class UIMarkerDesc_Patch
                 MarkerSettingEvent.SetTodoContent,
                 stringValue: __instance.marker.todo?.content,
                 colorData: __instance.marker.todo?.contentColorIndex));
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(UIMarkerDesc.OnDigitalSignalIdEndEdit))]
+    public static void OnDigitalSignalIdEndEdit(UIMarkerDesc __instance)
+    {
+        if (!Multiplayer.IsActive || Multiplayer.Session.Warning.IsIncomingMarkerPacket)
+        {
+            return;
+        }
+        if (__instance.marker == null || __instance.factory == null)
+        {
+            return;
+        }
+        Multiplayer.Session.Network.SendPacket(
+            new MarkerSettingUpdatePacket(__instance.factory.planetId, __instance.marker.id,
+                MarkerSettingEvent.SetDigitalSignalId,
+                intValue: __instance.marker.digitalSignalId));
     }
 
     [HarmonyPostfix]
