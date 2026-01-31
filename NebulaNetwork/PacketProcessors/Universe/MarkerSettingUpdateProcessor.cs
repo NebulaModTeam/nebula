@@ -98,7 +98,7 @@ internal class MarkerSettingUpdateProcessor : PacketProcessor<MarkerSettingUpdat
 
             try
             {
-                marker.InternalUpdate();
+                marker.InternalUpdate(factory.digitalSystem?.digitalSignalPool);
             }
             catch
             {
