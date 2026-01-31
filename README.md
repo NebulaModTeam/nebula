@@ -39,7 +39,7 @@ The mod supports running the server in non-GPU environment. Check [the wiki page
 
 Major refactors will happen while the project grows or game updates. Join the [Discord Server](https://discord.gg/UHeB2QvgDa) if you want to see to latest state of our development. Check [Wiki](https://github.com/NebulaModTeam/nebula/wiki/About-Nebula) for overview of features.  
 
-The multiplayer mod now supports Dark Fog combat mode in the latest game version (0.10.33.x).  
+The multiplayer mod now supports Dark Fog combat mode in the latest game version (0.10.34.x).  
 Most of the battle aspects are sync, only few features are still work in progress.  
 
 <details>
@@ -76,6 +76,7 @@ Most of the battle aspects are sync, only few features are still work in progres
 - [x] Warning alarm syncing
 - [x] Broadcast notification syncing (events with guide icon)
 - [x] Logistics Control Panel (I) syncing (entry list and detail panel)
+- [x] Planet Memo syncing
 - [ ] Goal system (currently not available in client)
 - [ ] Custom dashboard (clients will lost their custom stats when they leave the star system)
 - [ ] Wireless charge tower (power will not sync when mecha is charging)
@@ -116,8 +117,8 @@ Most of the battle aspects are sync, only few features are still work in progres
 - [x] Patch DF unit to search for nearest alive mecha (sensor range)
 - [x] Patch DF turret to search for nearest alive mecha (attack when within attack range or counterattack)
 - [x] Show base/hive/relay invasion events in chat
-- [ ] Sync kill stats
 - [x] Sync Dark Fog communicator (aggressiveness and truce)
+- [ ] Sync kill stats
 - [ ] Show remote mecha combat drone fleet animation
 - [ ] Show remote mecha spacecraft fleet animation
 - [ ] Show ground-to-space attacks animation on client for remote planets (missile turrets, plasma cannon)

@@ -190,12 +190,14 @@ public class MultiplayerOptions : ICloneable
 
 
     // Detail function group buttons
-    public bool PowerGridEnabled { get; set; }
-    public bool VeinDistributionEnabled { get; set; }
-    public bool SpaceNavigationEnabled { get; set; } = true;
-    public bool BuildingWarningEnabled { get; set; } = true;
-    public bool BuildingIconEnabled { get; set; } = true;
-    public bool GuidingLightEnabled { get; set; } = true;
+    public bool ShowDetailPowerGrid { get; set; }
+    public bool ShowDetailVeinDistribution { get; set; }
+    public bool ShowDetailSpaceNavigation { get; set; } = true;
+    public bool ShowDetailDefenseArea { get; set; }
+    public bool ShowDetailBuildingAlarm { get; set; } = true;
+    public bool ShowDetailBuildingIcon { get; set; } = true;
+    public bool ShowGuidingLight { get; set; } = true;
+    public bool ShowDetailHpBars { get; set; } = true;
 
     public bool RemoteAccessEnabled { get; set; } = false;
     public string RemoteAccessPassword { get; set; } = "";
