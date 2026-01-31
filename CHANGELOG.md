@@ -1,5 +1,10 @@
 ## Changelog
 
+0.9.20
+- Compatible with game version 0.10.34.28392
+- @gabrielgad: Sync Planet Memo
+- @gabrielgad: Sync Holo Beacon (marker)
+
 0.9.19:
 - Add new config option `Chat View Mode` to switch between TMPro and IMGUI chat window.  
 - Sync point-to-point transport setting window in client.
