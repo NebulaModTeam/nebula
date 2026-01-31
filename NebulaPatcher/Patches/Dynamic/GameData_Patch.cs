@@ -219,6 +219,10 @@ internal class GameData_Patch
             Multiplayer.Session.Combat.OnFactoryLoadFinished(planet.factory);
             Multiplayer.Session.Enemies.OnFactoryLoadFinished(planet.factory);
 
+            // Rebuild markerCursor and recycle list so MarkerRenderer iterates pre-existing beacons.
+            // Same pattern as galacticTransport.Arragement() below (and vanilla GameData.Import line 936).
+            GameMain.data.galacticDigital?.Arragement();
+
             try
             {
                 NebulaModAPI.OnPlanetLoadFinished?.Invoke(planet.id);
