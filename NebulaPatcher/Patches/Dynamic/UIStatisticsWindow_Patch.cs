@@ -25,7 +25,8 @@ internal class UIStatisticsWindow_Patch
         var astroFilter = __instance.astroFilter;
         if (astroFilter == 0)
         {
-            astroFilter = GameMain.localPlanet?.astroId ?? (GameMain.localStar?.id ?? 0);
+            // astroId, not id: the star astro filter is starIndex * 100.
+            astroFilter = GameMain.localPlanet?.astroId ?? (GameMain.localStar?.astroId ?? 0);
         }
         Multiplayer.Session.Network.SendPacket(new StatisticsRequestEvent(StatisticEvent.WindowOpened, astroFilter));
     }

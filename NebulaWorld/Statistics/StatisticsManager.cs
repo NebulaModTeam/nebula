@@ -55,6 +55,7 @@ public class StatisticsManager : IDisposable
         statisticalSnapShots = null;
         planetDataMap = null;
         factoryIndexMap = null;
+        threadSafe.RequestorAstroFilters.Clear();
         GC.SuppressFinalize(this);
     }
 
@@ -157,6 +158,26 @@ public class StatisticsManager : IDisposable
                     player.Value.SendPacket(dataPacket);
                 }
             }
+
+            //Keep the clients' Power Dashboard in sync with the host's simulation.
+            //Group by astro filter so the (relatively costly) vanilla derivation runs once per filter.
+            var powerDataPerFilter = new Dictionary<int, byte[]>();
+            foreach (var player in requestors)
+            {
+                if (!threadSafe.RequestorAstroFilters.TryGetValue(player.Key, out var astroFilter))
+                {
+                    continue;
+                }
+                if (!powerDataPerFilter.TryGetValue(astroFilter, out var powerData))
+                {
+                    using var writer = new BinaryUtils.Writer();
+                    ExportPowerData(writer.BinaryWriter, astroFilter);
+                    powerData = writer.CloseAndGetBytes();
+                    powerDataPerFilter[astroFilter] = powerData;
+                }
+                player.Value.SendPacket(new StatisticsPowerDataPacket(astroFilter, powerData));
+            }
+
             ClearCapturedData();
         }
     }
@@ -170,11 +191,12 @@ public class StatisticsManager : IDisposable
         }
     }
 
-    public void RegisterPlayer(NebulaConnection nebulaConnection, ushort playerId)
+    public void RegisterPlayer(NebulaConnection nebulaConnection, ushort playerId, int astroFilter)
     {
         using (GetRequestors(out var requestors))
         {
             requestors.Add(playerId, nebulaConnection);
+            threadSafe.RequestorAstroFilters[playerId] = astroFilter;
         }
 
         if (IsStatisticsNeeded)
@@ -189,9 +211,21 @@ public class StatisticsManager : IDisposable
     {
         using (GetRequestors(out var requestors))
         {
+            threadSafe.RequestorAstroFilters.Remove(playerId);
             if (requestors.Remove(playerId) && requestors.Count == 0)
             {
                 IsStatisticsNeeded = false;
+            }
+        }
+    }
+
+    public void UpdateAstroFilter(ushort playerId, int astroFilter)
+    {
+        using (GetRequestors(out _))
+        {
+            if (threadSafe.RequestorAstroFilters.ContainsKey(playerId))
+            {
+                threadSafe.RequestorAstroFilters[playerId] = astroFilter;
             }
         }
     }
@@ -288,6 +322,159 @@ public class StatisticsManager : IDisposable
     {
         if (PowerEnergyStoredData == null || factoryIndex >= PowerEnergyStoredData.Length) return 0;
         return PowerEnergyStoredData[factoryIndex];
+    }
+
+    /// <summary>
+    /// Runs the vanilla power statistics derivation for the given astro filter and serializes
+    /// the result. This calls the same public <see cref="ProductionStatistics"/> methods the
+    /// vanilla Power Dashboard uses, so the host computes values identical to singleplayer
+    /// without depending on any UI, which also keeps dedicated servers working.
+    /// </summary>
+    /// <remarks>
+    /// The UI astro filter convention is: -1 = all factories, 0 = local planet/star,
+    /// star = starIndex * 100, planet = planet astroId. The resolution below mirrors
+    /// <c>UIStatisticsPowerDetailPanel.RefreshPowerDatas</c> exactly.
+    /// </remarks>
+    public void ExportPowerData(BinaryWriter bw, int astroFilter)
+    {
+        var production = GameMain.statistics?.production;
+        if (production == null)
+        {
+            WriteEmptyPowerData(bw);
+            return;
+        }
+
+        // The refresh methods write into the shared arrays the host UI also renders from, so
+        // snapshot them and restore afterwards to avoid disturbing the host's own view.
+        var genCapacities = production.genCapacities;
+        var conDemands = production.conDemands;
+        var genCount = production.genCount;
+        var conCount = production.conCount;
+        var savedGenCapacities = (long[])genCapacities.Clone();
+        var savedConDemands = (long[])conDemands.Clone();
+        var savedGenCount = (int[])genCount.Clone();
+        var savedConCount = (int[])conCount.Clone();
+        var savedTotalGenCapacity = production.totalGenCapacity;
+        var savedTotalConDemand = production.totalConDemand;
+
+        try
+        {
+            var filter = ResolveAstroFilter(astroFilter);
+            production.RefreshPowerGenerationCapacites(filter);
+            production.RefreshPowerConsumptionDemands(filter);
+
+            WriteArray(bw, genCapacities);
+            WriteArray(bw, conDemands);
+            WriteArray(bw, genCount);
+            WriteArray(bw, conCount);
+            bw.Write(production.totalGenCapacity);
+            bw.Write(production.totalConDemand);
+        }
+        finally
+        {
+            Array.Copy(savedGenCapacities, genCapacities, genCapacities.Length);
+            Array.Copy(savedConDemands, conDemands, conDemands.Length);
+            Array.Copy(savedGenCount, genCount, genCount.Length);
+            Array.Copy(savedConCount, conCount, conCount.Length);
+            production.totalGenCapacity = savedTotalGenCapacity;
+            production.totalConDemand = savedTotalConDemand;
+        }
+    }
+
+    /// <summary>
+    /// Translates the UI astro filter into the value expected by
+    /// <see cref="ProductionStatistics.RefreshPowerGenerationCapacites"/>, where 0 means
+    /// "all factories". Mirrors the branching in the vanilla power detail panel.
+    /// </summary>
+    private static int ResolveAstroFilter(int astroFilter)
+    {
+        if (astroFilter == -1)
+        {
+            return 0;
+        }
+        if (astroFilter == 0)
+        {
+            // "Local" - resolve to the host's local planet, or all factories if there is none.
+            return GameMain.data?.localPlanet?.astroId ?? 0;
+        }
+        return astroFilter;
+    }
+
+    private static void WriteEmptyPowerData(BinaryWriter bw)
+    {
+        bw.Write(0);
+        bw.Write(0);
+        bw.Write(0);
+        bw.Write(0);
+        bw.Write(0L);
+        bw.Write(0L);
+    }
+
+    /// <summary>
+    /// Copies the received power statistics into the vanilla arrays in place.
+    /// UISectorGraph binds its data source to the array instance during _OnInit, so the
+    /// existing arrays must be mutated rather than replaced. The vanilla panel refreshes its
+    /// graphs every frame, so no explicit UI refresh is needed here.
+    /// </summary>
+    public void ImportPowerData(BinaryReader br)
+    {
+        var production = GameMain.statistics?.production;
+        if (production?.genCapacities == null || production.conDemands == null ||
+            production.genCount == null || production.conCount == null)
+        {
+            return;
+        }
+
+        ReadArray(br, production.genCapacities);
+        ReadArray(br, production.conDemands);
+        ReadArray(br, production.genCount);
+        ReadArray(br, production.conCount);
+        production.totalGenCapacity = br.ReadInt64();
+        production.totalConDemand = br.ReadInt64();
+    }
+
+    private static void WriteArray(BinaryWriter bw, long[] values)
+    {
+        bw.Write(values.Length);
+        foreach (var value in values)
+        {
+            bw.Write(value);
+        }
+    }
+
+    private static void WriteArray(BinaryWriter bw, int[] values)
+    {
+        bw.Write(values.Length);
+        foreach (var value in values)
+        {
+            bw.Write(value);
+        }
+    }
+
+    private static void ReadArray(BinaryReader br, long[] values)
+    {
+        var length = br.ReadInt32();
+        for (var i = 0; i < length; i++)
+        {
+            var value = br.ReadInt64();
+            if (i < values.Length)
+            {
+                values[i] = value;
+            }
+        }
+    }
+
+    private static void ReadArray(BinaryReader br, int[] values)
+    {
+        var length = br.ReadInt32();
+        for (var i = 0; i < length; i++)
+        {
+            var value = br.ReadInt32();
+            if (i < values.Length)
+            {
+                values[i] = value;
+            }
+        }
     }
 
     public void GetReferenceSpeedTip(BinaryWriter bw, int itemId, int astroFilter, int itemCycle, int productionProtoId)
@@ -599,5 +786,8 @@ public class StatisticsManager : IDisposable
     private sealed class ThreadSafe
     {
         internal readonly Dictionary<ushort, NebulaConnection> Requestors = new();
+
+        /// <summary>Astro filter each player currently has selected in the statistics power tab.</summary>
+        internal readonly Dictionary<ushort, int> RequestorAstroFilters = new();
     }
 }
