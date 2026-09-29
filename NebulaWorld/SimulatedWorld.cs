@@ -497,8 +497,7 @@ public class SimulatedWorld : IDisposable
                     go.transform.SetParent(playerModel.PlayerTransform, false);
                     // Add a meshrenderer and textmesh component to show the text with a different font
                     var meshRenderer = go.AddComponent<MeshRenderer>();
-                    meshRenderer.sharedMaterial =
-                        uiSailIndicator_targetText.gameObject.GetComponent<MeshRenderer>().sharedMaterial;
+                    meshRenderer.sharedMaterial = uiSailIndicator_targetText.font.material;
 
                     var textMesh = go.AddComponent<TextMesh>();
                     // Set the text to be their name

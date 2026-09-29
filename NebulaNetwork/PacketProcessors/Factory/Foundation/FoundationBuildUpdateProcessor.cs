@@ -47,37 +47,52 @@ internal class FoundationBuildUpdateProcessor : PacketProcessor<FoundationBuildU
             var area = packet.CirclePointCount;
             var costSandCount = 0; // dummy value, won't use
             var getSandCount = 0; // dummy value, won't use
-            if (!packet.IsCircle) //Normal reform
+            if (packet.ReformMode == 1) // Restore terrain
             {
-                var reformPointsCount = factory.planet.aux.ReformSnap(packet.GroundTestPos.ToVector3(), packet.ReformSize,
-                    packet.ReformType, packet.ReformColor, reformPoints, packet.ReformIndices, factory.platformSystem,
+                var pointCount = factory.planet.aux.ReformSnap(packet.GroundTestPos.ToVector3(), packet.ReformMode,
+                    packet.ReformSize, 0, 0, reformPoints, packet.ReformIndices, factory.platformSystem,
                     out var reformCenterPoint);
-                factory.ComputeFlattenTerrainReform(reformPoints, reformCenterPoint, packet.Radius, reformPointsCount, ref costSandCount, ref getSandCount);
-                center = reformCenterPoint;
-                area = packet.ReformSize * packet.ReformSize;
-            }
-            else //Remove pit
-            {
-                factory.ComputeFlattenTerrainReform(reformPoints, center, packet.Radius, packet.CirclePointCount, ref costSandCount, ref getSandCount, 3f, 1f);
-            }
-            using (Multiplayer.Session.Factories.IsIncomingRequest.On())
-            {
-                factory.FlattenTerrainReform(center, packet.Radius, packet.ReformSize, packet.VeinBuried);
-            }
-            var platformSystem = factory.platformSystem;
-            for (var i = 0; i < area; i++)
-            {
-                var index = packet.ReformIndices[i];
-                if (index < 0)
+                factory.ComputeRestoreTerrainReform(reformPoints, reformCenterPoint, packet.Radius, pointCount,
+                    ref costSandCount, ref getSandCount);
+                using (Multiplayer.Session.Factories.IsIncomingRequest.On())
                 {
-                    continue;
+                    factory.RestoreTerrainReform(reformCenterPoint, packet.Radius, packet.ReformSize, packet.VeinBuried);
                 }
-                var type = platformSystem.GetReformType(index);
-                var color = platformSystem.GetReformColor(index);
-                if (type != packet.ReformType || color != packet.ReformColor)
+            }
+            else
+            {
+                if (!packet.IsCircle) //Normal reform
                 {
-                    factory.platformSystem.SetReformType(index, packet.ReformType);
-                    factory.platformSystem.SetReformColor(index, packet.ReformColor);
+                    var reformPointsCount = factory.planet.aux.ReformSnap(packet.GroundTestPos.ToVector3(), packet.ReformMode, packet.ReformSize,
+                        packet.ReformType, packet.ReformColor, reformPoints, packet.ReformIndices, factory.platformSystem,
+                        out var reformCenterPoint);
+                    factory.ComputeFlattenTerrainReform(reformPoints, reformCenterPoint, packet.Radius, reformPointsCount, ref costSandCount, ref getSandCount);
+                    center = reformCenterPoint;
+                    area = packet.ReformSize * packet.ReformSize;
+                }
+                else //Remove pit
+                {
+                    factory.ComputeFlattenTerrainReform(reformPoints, center, packet.Radius, packet.CirclePointCount, ref costSandCount, ref getSandCount, 3f, 1f);
+                }
+                using (Multiplayer.Session.Factories.IsIncomingRequest.On())
+                {
+                    factory.FlattenTerrainReform(center, packet.Radius, packet.ReformSize, packet.VeinBuried);
+                }
+                var platformSystem = factory.platformSystem;
+                for (var i = 0; i < area; i++)
+                {
+                    var index = packet.ReformIndices[i];
+                    if (index < 0)
+                    {
+                        continue;
+                    }
+                    var type = platformSystem.GetReformType(index);
+                    var color = platformSystem.GetReformColor(index);
+                    if (type != packet.ReformType || color != packet.ReformColor)
+                    {
+                        factory.platformSystem.SetReformType(index, packet.ReformType);
+                        factory.platformSystem.SetReformColor(index, packet.ReformColor);
+                    }
                 }
             }
         }
