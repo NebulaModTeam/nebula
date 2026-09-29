@@ -154,7 +154,7 @@ public class RemotePlayerMovement : MonoBehaviour
         var meshRenderer = playerName.GetComponent<MeshRenderer>();
         playerName.AddComponent<TextMesh>();
 
-        meshRenderer.sharedMaterial = uiSailIndicator_targetText.gameObject.GetComponent<MeshRenderer>().sharedMaterial;
+        meshRenderer.sharedMaterial = uiSailIndicator_targetText.font.material;
 
         playerName.SetActive(true);
     }

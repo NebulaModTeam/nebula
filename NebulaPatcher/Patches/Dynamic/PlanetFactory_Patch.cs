@@ -147,6 +147,18 @@ internal class PlanetFactory_patch
     }
 
     [HarmonyPrefix]
+    [HarmonyPatch(nameof(PlanetFactory.RestoreTerrainReform))]
+    public static void RestoreTerrainReform_Prefix(Vector3 center, float radius, int reformSize,
+        bool veinBuried, float fade0)
+    {
+        if (Multiplayer.IsActive && !Multiplayer.Session.Factories.IsIncomingRequest.Value)
+        {
+            Multiplayer.Session.Network.SendPacketToLocalStar(
+                new FoundationBuildUpdatePacket(center, radius, reformSize, veinBuried, fade0));
+        }
+    }
+
+    [HarmonyPrefix]
     [HarmonyPatch(nameof(PlanetFactory.PlanetReformAll))]
     public static void PlanetReformAll_Prefix(PlanetFactory __instance, int type, int color, bool bury)
     {

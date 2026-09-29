@@ -21,6 +21,7 @@ public class FoundationBuildUpdatePacket
         var btr = GameMain.mainPlayer.controller.actionBuild.reformTool;
         ReformType = btr?.brushType ?? -1;
         ReformColor = btr?.brushColor ?? -1;
+        ReformMode = btr?.reformMode ?? 0;
         PlanetId = GameMain.mainPlayer.planetId;
         GroundTestPos = new Float3(btr?.castGroundPos ?? Vector3.zero);
         if (center != btr?.reformCenterPoint) //Pit (circle)
@@ -40,6 +41,7 @@ public class FoundationBuildUpdatePacket
     }
 
     public float Radius { get; set; }
+    public int ReformMode { get; set; }
     public int ReformSize { get; set; }
     public bool VeinBuried { get; set; }
     public float Fade0 { get; set; }
