@@ -1,5 +1,9 @@
 ## Changelog
 
+0.9.23:
+- Compatible with game version 0.10.35.29088
+- @JoshyDo: Fix Dark Fog enemy synchronization on client
+
 0.9.22:
 - Compatible with game version 0.10.34.28518
 
