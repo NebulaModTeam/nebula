@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using NebulaAPI.Packets;
 
@@ -13,6 +13,10 @@ public class DysonSphereStatusPacket
 
     public DysonSphereStatusPacket(DysonSphere dysonSphere)
     {
+        if (dysonSphere?.starData == null)
+        {
+            return;
+        }
         StarIndex = dysonSphere.starData.index;
         GrossRadius = dysonSphere.grossRadius;
         EnergyReqCurrentTick = dysonSphere.energyReqCurrentTick;

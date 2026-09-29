@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using System;
 using System.Collections.Concurrent;
@@ -187,7 +187,7 @@ public class Server : IServer
             PacketUtils.RegisterAllPacketProcessorsInAssembly(assembly, PacketProcessor as NebulaNetPacketProcessor, true);
         }
 #if DEBUG
-        PacketProcessor.SimulateLatency = true;
+        PacketProcessor.SimulateLatency = false;
 #endif
 
         if (Config.Options.EnableUPnpOrPmpSupport)

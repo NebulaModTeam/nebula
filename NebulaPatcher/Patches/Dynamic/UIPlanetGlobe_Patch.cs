@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using HarmonyLib;
 using NebulaAPI;
@@ -31,6 +31,22 @@ internal class UIPlanetGlobe_Patch
             // Send packet with new star name
             Multiplayer.Session.Network.SendPacket(new NameInputPacket(GameMain.localStar.overrideName,
                 GameMain.localStar.id, NebulaModAPI.PLANET_NONE));
+        }
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(UIPlanetGlobe._OnUpdate))]
+    public static void _OnUpdate_Postfix(UIPlanetGlobe __instance)
+    {
+        if (!Multiplayer.IsActive)
+        {
+            return;
+        }
+
+        if (!__instance.markerUnlocker && GameMain.history != null && (GameMain.history.markerUnlocked || GameMain.history.TechUnlocked(1105)))
+        {
+            __instance.markerUnlocker = true;
+            __instance.DistributeButtons();
         }
     }
 }

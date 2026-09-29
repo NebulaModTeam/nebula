@@ -1,9 +1,10 @@
-﻿#region
+#region
 
 using HarmonyLib;
 using NebulaModel.Logger;
 using NebulaModel.Packets.GameHistory;
 using NebulaWorld;
+using NebulaWorld.GameStates;
 
 #endregion
 
@@ -152,5 +153,83 @@ internal class GameHistoryData_Patch
         Log.Info("Sending Tech Unlocked notification");
         GameMain.mainPlayer.mecha.lab.itemPoints.Clear();
         Multiplayer.Session.Network.SendPacket(new GameHistoryUnlockTechPacket(_techId, _level));
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(GameHistoryData.RegFeatureKey))]
+    public static void RegFeatureKey_Prefix(GameHistoryData __instance, int featureId, out bool __state)
+    {
+        __state = Multiplayer.IsActive && __instance != null && (__instance.featureKeys == null || !__instance.featureKeys.Contains(featureId));
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(GameHistoryData.RegFeatureKey))]
+    public static void RegFeatureKey_Postfix(int featureId, bool __state)
+    {
+        if (!Multiplayer.IsActive)
+        {
+            return;
+        }
+
+        GameStatesManager.PreserveFeatureKey(featureId);
+
+        if (!__state || Multiplayer.Session.History.IsIncomingRequest)
+        {
+            return;
+        }
+
+        Multiplayer.Session.Network.SendPacket(new GameHistoryFeatureKeyPacket(featureId, true));
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(GameHistoryData.UnregFeatureKey))]
+    public static void UnregFeatureKey_Prefix(GameHistoryData __instance, int featureId, out bool __state)
+    {
+        __state = Multiplayer.IsActive && __instance?.featureKeys != null && __instance.featureKeys.Contains(featureId);
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(GameHistoryData.UnregFeatureKey))]
+    public static void UnregFeatureKey_Postfix(int featureId, bool __state)
+    {
+        if (!Multiplayer.IsActive)
+        {
+            return;
+        }
+
+        GameStatesManager.UnpreserveFeatureKey(featureId);
+
+        if (!__state || Multiplayer.Session.History.IsIncomingRequest)
+        {
+            return;
+        }
+
+        Multiplayer.Session.Network.SendPacket(new GameHistoryFeatureKeyPacket(featureId, false));
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(GameHistoryData.UnlockTutorial))]
+    public static void UnlockTutorial_Prefix(GameHistoryData __instance, int tutorialId, out bool __state)
+    {
+        __state = Multiplayer.IsActive && __instance != null && tutorialId > 0 && (__instance.tutorialUnlocked == null || !__instance.tutorialUnlocked.Contains(tutorialId));
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(GameHistoryData.UnlockTutorial))]
+    public static void UnlockTutorial_Postfix(int tutorialId, bool __state)
+    {
+        if (tutorialId <= 0 || !Multiplayer.IsActive)
+        {
+            return;
+        }
+
+        GameStatesManager.PreserveTutorial(tutorialId);
+
+        if (!__state || Multiplayer.Session.History.IsIncomingRequest)
+        {
+            return;
+        }
+
+        Multiplayer.Session.Network.SendPacket(new GameHistoryUnlockTutorialPacket(tutorialId));
     }
 }

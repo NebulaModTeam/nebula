@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using System.IO;
 using NebulaAPI.DataStructures;
@@ -17,6 +17,7 @@ public class MechaData : IMechaData
     {
         // This is needed for the serialization and deserialization
         Forge = new MechaForge { tasks = [] };
+        FightData = new MechaFightData();
         TechBonuses = new PlayerTechBonuses();
     }
 
@@ -133,6 +134,7 @@ public class MechaData : IMechaData
     public void Import(INetDataReader reader, int revision)
     {
         TechBonuses = new PlayerTechBonuses();
+        FightData = new MechaFightData();
         Inventory = new StorageComponent(4);
         DeliveryPackage = new DeliveryPackage();
         DeliveryPackage.Init();
@@ -141,7 +143,7 @@ public class MechaData : IMechaData
         Forge = new MechaForge { tasks = [], extraItems = new ItemBundle() };
         ConstructionModule = new ConstructionModuleComponent();
         TechBonuses.Import(reader, revision);
-        SandCount = reader.GetInt();
+        SandCount = revision >= 8 ? reader.GetLong() : reader.GetInt();
         CoreEnergy = reader.GetDouble();
         ReactorEnergy = reader.GetDouble();
         var isPayloadPresent = reader.GetBool();

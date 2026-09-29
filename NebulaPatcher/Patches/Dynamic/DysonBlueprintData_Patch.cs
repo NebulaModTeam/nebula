@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using HarmonyLib;
 using NebulaModel.Packets.Universe.Editor;
@@ -32,7 +32,7 @@ internal class DysonBlueprintData_Patch
             return;
         }
         Multiplayer.Session.DysonSpheres.InBlueprint = false;
-        if (Multiplayer.Session.DysonSpheres.IsIncomingRequest || __result != DysonBlueprintDataIOError.OK)
+        if (Multiplayer.Session.DysonSpheres.IsIncomingRequest || __result != DysonBlueprintDataIOError.OK || sphere?.starData == null)
         {
             return;
         }

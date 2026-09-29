@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using System;
 using HarmonyLib;
@@ -63,10 +63,6 @@ internal class EnemyDFHiveSystem_Patch
         if (__instance.lancerAssaultCountBase < 1f || __instance.lancerAssaultCountBase > 1500f)
         {
             __instance.lancerAssaultCountBase = __instance.GetLancerAssaultCountInitial(aggressiveLevel);
-        }
-        if (__instance.lancerAssaultCountBase > 360f)
-        {
-            __instance.lancerAssaultCountBase = 360f;
         }
         // Skip the part of if (this.evolve.threat >= this.evolve.maxThreat) in client
         return false;

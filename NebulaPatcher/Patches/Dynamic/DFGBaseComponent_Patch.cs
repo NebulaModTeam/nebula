@@ -16,10 +16,18 @@ internal class DFGBaseComponent_Patch
 {
     [HarmonyPrefix]
     [HarmonyPatch(nameof(DFGBaseComponent.UnderAttack), new Type[] { })]
-    public static bool UnderAttack_Prefix1()
+    public static bool UnderAttack_Prefix1(DFGBaseComponent __instance)
     {
-        // Handle in PlayerAction_Combat.ActivateBaseEnemyManually
-        return !Multiplayer.IsActive;
+        if (!Multiplayer.IsActive) return true;
+        if (Multiplayer.Session.IsClient) return false;
+
+        // Restore singleplayer behavior: When base takes damage (e.g. from turrets/missiles/drones), wake up defense units
+        if (__instance.activeTick <= 0)
+        {
+            __instance.activeTick = 3;
+            __instance.ActiveAllUnit(GameMain.gameTick);
+        }
+        return false;
     }
 
     [HarmonyPrefix]

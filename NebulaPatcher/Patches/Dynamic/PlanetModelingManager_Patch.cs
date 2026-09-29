@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using System;
 using System.Collections.Generic;
@@ -97,9 +97,10 @@ public class PlanetModelingManager_Patch
 
         InternalLoadPlanetsRequestGenerator(star.planets);
 
-        Multiplayer.Session.DysonSpheres.UnloadRemoteDysonSpheres();
+        Multiplayer.Session.DysonSpheres.UnloadRemoteDysonSpheres(star.index);
         // Request initial dysonSphere data
-        if (GameMain.data.dysonSpheres[star.index] == null)
+        if ((GameMain.data.dysonSpheres[star.index] == null || !Multiplayer.Session.DysonSpheres.LoadedSpheres.Contains(star.index)) &&
+            Multiplayer.Session.DysonSpheres.RequestingIndex != star.index)
         {
             Multiplayer.Session.DysonSpheres.RequestDysonSphere(star.index, false);
         }

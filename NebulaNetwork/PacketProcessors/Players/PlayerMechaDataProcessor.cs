@@ -1,5 +1,6 @@
-﻿#region
+#region
 
+using NebulaAPI.Networking;
 using NebulaAPI.Packets;
 using NebulaModel;
 using NebulaModel.Logger;
@@ -22,10 +23,11 @@ internal class PlayerMechaDataProcessor : PacketProcessor<PlayerMechaData>
             return;
         }
 
-        var player = Multiplayer.Session.Server.Players.Get(conn);
+        var player = Multiplayer.Session.Server.Players.Get(conn)
+            ?? Multiplayer.Session.Server.Players.Get(conn, EConnectionStatus.Syncing);
         if (player == null)
         {
-            Log.Warn("Can't find the connected player for PlayerMechaData!");
+            Log.Warn($"Can't find the connected player for PlayerMechaData! (connId: {conn?.Id}, status: {conn?.ConnectionStatus})");
             return;
         }
 

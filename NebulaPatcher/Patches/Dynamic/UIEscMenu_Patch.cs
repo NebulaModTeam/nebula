@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using System;
 using System.Diagnostics.CodeAnalysis;
@@ -74,6 +74,7 @@ internal class UIEscMenu_Patch
         }
         else if (GameMain.mainPlayer?.mecha != null)
         {
+            UIDashboard_Patch.SyncDashboardToServer();
             GameMain.mainPlayer.mecha.lab.ManageTakeback(); // Refund items to player package
             Multiplayer.Session.Network.SendPacket(new PlayerMechaData(GameMain.mainPlayer));
             Thread.Sleep(100); // Wait for async packet send

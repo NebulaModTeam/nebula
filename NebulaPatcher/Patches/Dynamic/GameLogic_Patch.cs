@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using System;
 using HarmonyLib;
@@ -55,10 +55,26 @@ public class GameLogic_Patch
         }
         catch (Exception e)
         {
-            _ = e;
-#if DEBUG
-            Log.Warn(e);
-#endif
+            var currentTick = GameMain.gameTick;
+            if (currentTick - lastILSLogTick > 180 || lastILSLogTick == 0)
+            {
+                lastILSLogTick = currentTick;
+                Log.Warn($"[LogicFrame_Postfix] Visual effects update error: {e.GetType().Name}: {e.Message}\n{e.StackTrace}");
+            }
+        }
+    }
+
+    private static long lastILSLogTick;
+    private static int ilsErrorCount;
+
+    private static void LogILSUpdateError(StationComponent station, Exception e)
+    {
+        ilsErrorCount++;
+        var currentTick = GameMain.gameTick;
+        if (currentTick - lastILSLogTick > 180 || lastILSLogTick == 0)
+        {
+            lastILSLogTick = currentTick;
+            Log.Warn($"[ILSUpdateShipPos] Error on station gid={station.gid} (planetId={station.planetId}, ships={station.workShipCount}, errors={ilsErrorCount}): {e.GetType().Name}: {e.Message}\n{e.StackTrace}");
         }
     }
 
@@ -90,9 +106,16 @@ public class GameLogic_Patch
                 var planet = GameMain.galaxy.PlanetById(stationComponent.planetId);
                 if (planet == null) continue;
 
-                StationComponent_Transpiler.ILSUpdateShipPos(stationComponent,
-                    planet.factory, timeGene, shipSailSpeed, shipWarpSpeed,
-                    shipCarries, gStationPool, astroPoses, ref relativePos, ref relativeRot, starmap, null);
+                try
+                {
+                    StationComponent_Transpiler.ILSUpdateShipPos(stationComponent,
+                        planet.factory, timeGene, shipSailSpeed, shipWarpSpeed,
+                        shipCarries, gStationPool, astroPoses, ref relativePos, ref relativeRot, starmap, null);
+                }
+                catch (Exception e)
+                {
+                    LogILSUpdateError(stationComponent, e);
+                }
             }
         }
     }

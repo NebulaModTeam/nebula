@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using System.Linq;
 using HarmonyLib;
@@ -32,7 +32,10 @@ internal class DFGTurretComponent_Patch
                 {
                     ref var ptr = ref players[i];
                     dist2 = Vector3.SqrMagnitude(ptr.skillTargetL - __instance.muzzleWPos);
-                    __result = ptr.isAlive && (__instance.CounterAttackPlayer(factory, @base) || dist2 <= (__instance.sensorRange * __instance.sensorRange));
+                    // Allow counter-attack when provoked up to realistic mortar/artillery distance (250m)
+                    var maxCounterDist2 = Mathf.Max(__instance.realAttactRange * __instance.realAttactRange * 2.25f, 62500f);
+                    var canCounter = __instance.CounterAttackPlayer(factory, @base) && dist2 <= maxCounterDist2;
+                    __result = ptr.isAlive && (canCounter || dist2 <= (__instance.sensorRange * __instance.sensorRange));
                     return false;
                 }
             }
@@ -79,7 +82,9 @@ internal class DFGTurretComponent_Patch
             return true;
         }
 
+        var maxCounterDist2 = Mathf.Max(__instance.realAttactRange * __instance.realAttactRange * 2.25f, 62500f);
         var counterAttackFlag = __instance.CounterAttackPlayer(factory, @base)
+            && closestDist <= maxCounterDist2
             && (__instance.target.type != ETargetType.Player || __instance.target.id != playerId);
         if (counterAttackFlag || closestDist <= __instance.realAttactRange * __instance.realAttactRange)
         {
@@ -117,9 +122,10 @@ internal class DFGTurretComponent_Patch
 
     [HarmonyPostfix]
     [HarmonyPatch(nameof(DFGTurretComponent.CounterAttackPlayer))]
-    public static void CounterAttackPlayer(ref bool __result)
+    public static void CounterAttackPlayer(DFGBaseComponent @base, ref bool __result)
     {
-        // Disable in MP due to unknown bug that cause host player gets hit from nowhere
-        __result &= !Multiplayer.IsActive;
+        if (!Multiplayer.IsActive) return;
+        // In MP: Restore counter-attacks when base is provoked and has hatred
+        __result = @base != null && @base.hatred.max.value > 0;
     }
 }

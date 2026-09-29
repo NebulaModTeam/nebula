@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using System;
 using System.Collections.Generic;
@@ -8,6 +8,7 @@ using NebulaModel.DataStructures;
 using NebulaModel.Logger;
 using NebulaModel.Networking.Serialization;
 using NebulaModel.Utils;
+using NebulaWorld.GameStates;
 
 #endregion
 
@@ -16,7 +17,7 @@ namespace NebulaWorld;
 public static class SaveManager
 {
     private const string FILE_EXTENSION = ".server";
-    private const ushort REVISION = 8;
+    private const ushort REVISION = 9;
 
     private static readonly Dictionary<string, IPlayerData> playerSaves = new();
     public static IReadOnlyDictionary<string, IPlayerData> PlayerSaves => playerSaves;
@@ -43,6 +44,15 @@ public static class SaveManager
 
         //Add host's data
         netDataWriter.Put(CryptoUtils.GetCurrentUserPublicKeyHash());
+        if (Multiplayer.Session.LocalPlayer.Data is PlayerData hostData)
+        {
+            hostData.ReplicatorMultipliersData = GameStatesManager.ExportReplicatorMultipliers();
+            var dashboardData = GameStatesManager.ExportDashboardData();
+            if (dashboardData != null && dashboardData.Length > 0)
+            {
+                hostData.DashboardData = dashboardData;
+            }
+        }
         Multiplayer.Session.LocalPlayer.Data.Serialize(netDataWriter);
 
         File.WriteAllBytes(path, netDataWriter.Data);
@@ -121,7 +131,7 @@ public static class SaveManager
             Log.Info($"Loading server data revision {revision} (Latest {REVISION})");
             if (revision != REVISION)
             {
-                // Supported revision: 5~8
+                // Supported revision: 5~9
                 if (revision is < 5 or > REVISION)
                 {
                     throw new Exception($"Unsupported version {revision}");

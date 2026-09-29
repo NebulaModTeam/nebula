@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using HarmonyLib;
 using NebulaModel.Packets.Universe;
@@ -40,14 +40,14 @@ internal class DESelection_Patch
                 UIRoot.instance.uiGame.dysonEditor._Close();
                 return false;
             }
-            if (GameMain.data.dysonSpheres[starData.index] == null)
+            if (starData == null || GameMain.data.dysonSpheres[starData.index] == null)
             {
                 //Local dyson sphere hasn't loaded yet, close the UI
                 UIRoot.instance.uiGame.dysonEditor._Close();
                 return false;
             }
         }
-        if (starData == null || GameMain.data.dysonSpheres[starData.index] != null)
+        if (starData == null || (GameMain.data.dysonSpheres[starData.index] != null && Multiplayer.Session.DysonSpheres.LoadedSpheres.Contains(starData.index)))
         {
             return true;
         }
@@ -66,5 +66,15 @@ internal class DESelection_Patch
             x == UIRoot.instance.uiGame.dysonEditor.selection.viewStar?.index);
         dysonBox.itemIndex = index >= 0 ? index : 0;
         return false;
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(UIDysonEditor), nameof(UIDysonEditor._OnClose))]
+    public static void UIDysonEditor_OnClose_Postfix()
+    {
+        if (Multiplayer.IsActive && Multiplayer.Session.LocalPlayer.IsClient)
+        {
+            Multiplayer.Session.DysonSpheres.UnloadRemoteDysonSpheres();
+        }
     }
 }
