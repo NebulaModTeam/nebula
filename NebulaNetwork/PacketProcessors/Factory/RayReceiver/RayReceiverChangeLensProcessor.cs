@@ -20,6 +20,5 @@ internal class RayReceiverChangeLensProcessor : PacketProcessor<RayReceiverChang
             return;
         }
         pool[packet.GeneratorId].catalystPoint = packet.LensCount;
-        pool[packet.GeneratorId].catalystIncPoint = packet.LensInc;
     }
 }
