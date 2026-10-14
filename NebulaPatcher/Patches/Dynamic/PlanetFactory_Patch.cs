@@ -594,7 +594,7 @@ internal class PlanetFactory_patch
             if (genPool[powerGenId].gamma)
             {
                 Multiplayer.Session.Network.SendPacketToLocalStar(new RayReceiverChangeLensPacket(powerGenId,
-                    genPool[powerGenId].catalystPoint, genPool[powerGenId].catalystIncPoint, __instance.planetId));
+                    genPool[powerGenId].catalystPoint, __instance.planetId));
             }
         }
         if (entityData.powerExcId > 0)

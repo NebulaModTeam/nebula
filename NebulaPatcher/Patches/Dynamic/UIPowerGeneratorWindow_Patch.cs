@@ -51,7 +51,6 @@ internal class UIPowerGeneratorWindow_Patch
         }
         var packet = new RayReceiverChangeLensPacket(__instance.generatorId,
             __instance.powerSystem.genPool[__instance.generatorId].catalystPoint,
-            __instance.powerSystem.genPool[__instance.generatorId].catalystIncPoint,
             GameMain.localPlanet?.id ?? -1);
         Multiplayer.Session.Network.SendPacketToLocalStar(packet);
     }

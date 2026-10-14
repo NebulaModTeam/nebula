@@ -52,8 +52,7 @@ internal class FoundationBuildUpdateProcessor : PacketProcessor<FoundationBuildU
                 var pointCount = factory.planet.aux.ReformSnap(packet.GroundTestPos.ToVector3(), packet.ReformMode,
                     packet.ReformSize, 0, 0, reformPoints, packet.ReformIndices, factory.platformSystem,
                     out var reformCenterPoint);
-                factory.ComputeRestoreTerrainReform(reformPoints, reformCenterPoint, packet.Radius, pointCount,
-                    ref costSandCount, ref getSandCount);
+                factory.ComputeRestoreTerrainReform(reformPoints, packet.ReformIndices, packet.ReformIndices.Length, reformCenterPoint, packet.Radius, pointCount, ref costSandCount, ref getSandCount);
                 using (Multiplayer.Session.Factories.IsIncomingRequest.On())
                 {
                     factory.RestoreTerrainReform(reformCenterPoint, packet.Radius, packet.ReformSize, packet.VeinBuried);
