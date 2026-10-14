@@ -5,6 +5,8 @@ on:
 
 jobs:
   build:
+    permissions:
+      id-token: write
     runs-on: windows-latest
 
     env:
@@ -93,9 +95,16 @@ jobs:
           tag: v${{ steps.getver.outputs.ver }}
           commit: ${{ github.event.base_ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
+      
+      # Get a short-lived NuGet API key
+      - name: NuGet login (OIDC → temp API key)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: ${{ secrets.NUGET_USER }}
 
        # Publish to NuGet
       - name: Publish to NuGet
         run: |
           dotnet pack .\NebulaAPI\NebulaAPI.csproj -c Release -o "." -p:OutDir="bin/net472/Release/" -p:PublicRelease=true
-          dotnet nuget push *.nupkg -s https://api.nuget.org/v3/index.json -k ${{secrets.NUGET_API_KEY}} --skip-duplicate
+          dotnet nuget push *.nupkg --api-key ${{steps.login.outputs.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
