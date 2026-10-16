@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using System;
 using System.IO;
@@ -20,6 +20,8 @@ public class PlayerData : IPlayerData
         DIYAppearance = null;
         DIYItemId = Array.Empty<int>();
         DIYItemValue = Array.Empty<int>();
+        DashboardData = null;
+        ReplicatorMultipliersData = null;
     }
 
     public PlayerData(ushort playerId, int localPlanetId, string username = null, Float3 localPlanetPosition = new(),
@@ -37,6 +39,8 @@ public class PlayerData : IPlayerData
         DIYAppearance = null;
         DIYItemId = Array.Empty<int>();
         DIYItemValue = Array.Empty<int>();
+        DashboardData = null;
+        ReplicatorMultipliersData = null;
     }
 
     public string Username { get; set; }
@@ -52,6 +56,8 @@ public class PlayerData : IPlayerData
     public MechaAppearance DIYAppearance { get; set; }
     public int[] DIYItemId { get; set; }
     public int[] DIYItemValue { get; set; }
+    public byte[] DashboardData { get; set; }
+    public byte[] ReplicatorMultipliersData { get; set; }
 
     public void Serialize(INetDataWriter writer)
     {
@@ -92,6 +98,18 @@ public class PlayerData : IPlayerData
         {
             writer.Put(DIYItemId[i]);
             writer.Put(DIYItemValue[i]);
+        }
+        writer.Put(DashboardData != null);
+        if (DashboardData != null)
+        {
+            writer.Put(DashboardData.Length);
+            writer.Put(DashboardData);
+        }
+        writer.Put(ReplicatorMultipliersData != null);
+        if (ReplicatorMultipliersData != null)
+        {
+            writer.Put(ReplicatorMultipliersData.Length);
+            writer.Put(ReplicatorMultipliersData);
         }
     }
 
@@ -138,11 +156,43 @@ public class PlayerData : IPlayerData
             DIYItemId[i] = reader.GetInt();
             DIYItemValue[i] = reader.GetInt();
         }
+        var isDashboardPresent = reader.GetBool();
+        if (isDashboardPresent)
+        {
+            var len = reader.GetInt();
+            DashboardData = new byte[len];
+            reader.GetBytes(DashboardData, len);
+        }
+        else
+        {
+            DashboardData = null;
+        }
+        if (reader.AvailableBytes > 0)
+        {
+            var isMultipliersPresent = reader.GetBool();
+            if (isMultipliersPresent)
+            {
+                var len = reader.GetInt();
+                ReplicatorMultipliersData = new byte[len];
+                reader.GetBytes(ReplicatorMultipliersData, len);
+            }
+            else
+            {
+                ReplicatorMultipliersData = null;
+            }
+        }
+        else
+        {
+            ReplicatorMultipliersData = null;
+        }
     }
 
     public IPlayerData CreateCopyWithoutMechaData()
     {
-        return new PlayerData(PlayerId, LocalPlanetId, Username, LocalPlanetPosition, UPosition, Rotation, BodyRotation);
+        var copy = new PlayerData(PlayerId, LocalPlanetId, Username, LocalPlanetPosition, UPosition, Rotation, BodyRotation);
+        copy.DashboardData = DashboardData;
+        copy.ReplicatorMultipliersData = ReplicatorMultipliersData;
+        return copy;
     }
 
     // Backward compatiblity for older versions
@@ -206,6 +256,34 @@ public class PlayerData : IPlayerData
             {
                 DIYItemId[i] = reader.GetInt();
                 DIYItemValue[i] = reader.GetInt();
+            }
+        }
+        if (revision >= 9 && reader.AvailableBytes > 0)
+        {
+            var isDashboardPresent = reader.GetBool();
+            if (isDashboardPresent)
+            {
+                var len = reader.GetInt();
+                DashboardData = new byte[len];
+                reader.GetBytes(DashboardData, len);
+            }
+            else
+            {
+                DashboardData = null;
+            }
+        }
+        if (revision >= 9 && reader.AvailableBytes > 0)
+        {
+            var isMultipliersPresent = reader.GetBool();
+            if (isMultipliersPresent)
+            {
+                var len = reader.GetInt();
+                ReplicatorMultipliersData = new byte[len];
+                reader.GetBytes(ReplicatorMultipliersData, len);
+            }
+            else
+            {
+                ReplicatorMultipliersData = null;
             }
         }
     }

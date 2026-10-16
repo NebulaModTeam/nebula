@@ -1,8 +1,9 @@
-﻿#region
+#region
 
 using HarmonyLib;
 using NebulaWorld;
 using NebulaModel.Packets.Combat.DFRelay;
+using UnityEngine;
 
 #endregion
 
@@ -23,10 +24,54 @@ internal class DFRelayComponent_Patch
     }
 
     [HarmonyPrefix]
+    [HarmonyPatch(nameof(DFRelayComponent.CheckLandCondition))]
+    public static bool CheckLandCondition_Prefix(PlanetFactory factory, Vector3 tarpos, ref bool __result)
+    {
+        if (!Multiplayer.IsActive) return true;
+
+        var atField = factory?.planetATField;
+        if (atField != null && atField.energy > 0 && atField.generatorCount > 0)
+        {
+            if (atField.globeDefenceCoveryRatio >= 0.95 ||
+                atField.globeFillRatio >= 0.95 ||
+                atField.isSpherical)
+            {
+                __result = false;
+                return false;
+            }
+
+            if (!atField.TestRelayCondition(tarpos))
+            {
+                __result = false;
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    [HarmonyPrefix]
     [HarmonyPatch(nameof(DFRelayComponent.RealizePlanetBase))]
     public static bool RealizePlanetBase_Prefix(DFRelayComponent __instance)
     {
         if (!Multiplayer.IsActive) return true;
+
+        if (Multiplayer.Session.IsServer)
+        {
+            var planet = GameMain.galaxy?.PlanetById(__instance.targetAstroId);
+            var atField = planet?.factory?.planetATField;
+            if (atField != null && atField.energy > 0 && atField.generatorCount > 0)
+            {
+                if (atField.globeDefenceCoveryRatio >= 0.95 ||
+                    atField.globeFillRatio >= 0.95 ||
+                    atField.isSpherical)
+                {
+                    NebulaModel.Logger.Log.Info($"Blocking relay {__instance.id} from realizing base on fully shielded planet {planet.name}");
+                    return false;
+                }
+            }
+        }
+
         if (Multiplayer.Session.IsClient) return Multiplayer.Session.Enemies.IsIncomingRelayRequest;
 
         Multiplayer.Session.Network.SendPacket(new DFRelayRealizePlanetBasePacket(__instance));

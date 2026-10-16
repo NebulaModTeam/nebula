@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using System;
 using HarmonyLib;
@@ -100,8 +100,7 @@ internal class DFSTurretComponent_Patch
                 var dy = vectorLF2.y - ptr.pos.y;
                 var dz = vectorLF2.z - ptr.pos.z;
                 var sqrDist = (float)(dx * dx + dy * dy + dz * dz);
-                var coef = ((hive.hatred.max.targetType == ETargetType.Player) ? 1f : 0.64f);
-                if (sqrDist <= sqrRealAttackRange * coef && sqrDist < sqrDistToTarget)
+                if (sqrDist <= sqrRealAttackRange && sqrDist < sqrDistToTarget)
                 {
                     etargetType = ETargetType.Player;
                     targetId = players[cloestIndex].id; // Set to playerId

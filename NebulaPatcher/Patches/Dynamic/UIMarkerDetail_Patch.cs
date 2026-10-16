@@ -1,6 +1,7 @@
-﻿#region
+#region
 
 using HarmonyLib;
+using NebulaWorld;
 
 #endregion
 
@@ -11,13 +12,27 @@ internal class UIMarkerDetail_Patch
 {
     [HarmonyPrefix]
     [HarmonyPatch(typeof(UIMarkerDetail), nameof(UIMarkerDetail.SetInspectPlanet))]
-    public static void SetInspectPlanet_Prefix(UIMarkerDetail __instance)
+    public static bool SetInspectPlanet_Prefix(UIMarkerDetail __instance, PlanetData _planet)
     {
-        // When teleporting to another planet, the inspect planet factory can be null
-        // So set the inspectPlanet to null first in here
+        if (!Multiplayer.IsActive)
+        {
+            return true;
+        }
+
+        // When teleporting to another planet or loading, the target planet factory can be null
+        // Prevent vanilla crash and clear current inspection safely
+        if (_planet != null && _planet.factory == null)
+        {
+            __instance.inspectPlanet = null;
+            __instance.allNode?.Clear();
+            return false;
+        }
+
         if (__instance.inspectPlanet != null && __instance.inspectPlanet.factory == null)
         {
             __instance.inspectPlanet = null;
         }
+
+        return true;
     }
 }

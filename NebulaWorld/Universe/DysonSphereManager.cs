@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using System;
 using System.Collections.Generic;
@@ -26,9 +26,29 @@ public class DysonSphereManager : IDisposable
     public bool IsNormal { get; set; } = true; //Client side: is the spheres data normal or desynced
     public bool InBlueprint { get; set; } //In the processing of importing blueprint
     public int RequestingIndex { get; set; } = -1; //StarIndex of the dyson sphere requesting
+    public HashSet<int> LoadedSpheres { get; } = [];
 
     public void Dispose()
     {
+        if (GameMain.data?.dysonSpheres != null)
+        {
+            foreach (var i in LoadedSpheres)
+            {
+                if (i >= 0 && i < GameMain.data.dysonSpheres.Length && GameMain.data.dysonSpheres[i] != null)
+                {
+                    try
+                    {
+                        GameMain.data.dysonSpheres[i].Free();
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Warn($"Exception while freeing sphere {i} on dispose: {e}");
+                    }
+                    GameMain.data.dysonSpheres[i] = null;
+                }
+            }
+        }
+        LoadedSpheres.Clear();
         GC.SuppressFinalize(this);
     }
 
@@ -128,9 +148,19 @@ public class DysonSphereManager : IDisposable
 
     public void UpdateSphereStatusIfNeeded()
     {
-        foreach (var packet in statusPackets)
+        DysonSphereStatusPacket[] packets;
+        using (GetSubscribers(out _))
+        {
+            packets = statusPackets.ToArray();
+        }
+
+        foreach (var packet in packets)
         {
             var dysonSphere = GameMain.data.dysonSpheres[packet.StarIndex];
+            if (dysonSphere == null)
+            {
+                continue;
+            }
             //Update dyson sphere when the status changes
             if (Math.Abs(packet.GrossRadius - dysonSphere.grossRadius) < 0.000000001 &&
                 packet.EnergyReqCurrentTick == dysonSphere.energyReqCurrentTick &&
@@ -160,18 +190,40 @@ public class DysonSphereManager : IDisposable
         }
     }
 
-    public void UnloadRemoteDysonSpheres()
+    public void UnloadRemoteDysonSpheres(int keepStarIndex = -1)
     {
+        if (GameMain.data?.dysonSpheres == null)
+        {
+            return;
+        }
+
         //The editor will throw errors if there are no dyson spheres available
-        var currentId = GameMain.localStar?.index ?? UIRoot.instance.uiGame.dysonEditor.selection.viewStar?.index ?? -1;
+        var currentId = keepStarIndex >= 0 ? keepStarIndex : (GameMain.localStar?.index ?? GameMain.data?.localStar?.index ?? GameMain.data?.localPlanet?.star?.index ?? -1);
+        var editorId = UIRoot.instance?.uiGame?.dysonEditor?.selection?.viewStar?.index ?? -1;
+
+        // If player's current system and editor system are not yet resolved (e.g. during load or in deep space), do not unload
+        if (currentId == -1 && editorId == -1)
+        {
+            return;
+        }
+
         for (var i = 0; i < GameMain.data.dysonSpheres.Length; i++)
         {
-            if (GameMain.data.dysonSpheres[i] == null || i == currentId)
+            if (GameMain.data.dysonSpheres[i] == null || i == currentId || i == editorId)
             {
                 continue;
             }
             Log.Info($"Unload DysonSphere at system {GameMain.galaxy.stars[i].displayName} (Index: {i})");
             Multiplayer.Session.Network.SendPacket(new DysonSphereLoadRequest(i, DysonSphereRequestEvent.Unload));
+            LoadedSpheres.Remove(i);
+            try
+            {
+                GameMain.data.dysonSpheres[i].Free();
+            }
+            catch (Exception e)
+            {
+                Log.Warn($"Exception while freeing dyson sphere {i}: {e}");
+            }
             GameMain.data.dysonSpheres[i] = null;
         }
         IsNormal = true;
@@ -217,8 +269,8 @@ public class DysonSphereManager : IDisposable
 
     public static void ClearSelection(int starIndex, int layerId = -1)
     {
-        var selection = UIRoot.instance.uiGame.dysonEditor.selection;
-        if (selection.viewStar == null || selection.viewStar.index != starIndex)
+        var selection = UIRoot.instance?.uiGame?.dysonEditor?.selection;
+        if (selection == null || selection.viewStar == null || selection.viewStar.index != starIndex)
         {
             return;
         }

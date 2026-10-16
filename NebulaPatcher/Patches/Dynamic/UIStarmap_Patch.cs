@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using System.Diagnostics.CodeAnalysis;
 using HarmonyLib;
@@ -28,9 +28,14 @@ internal class UIStarmap_Patch
     [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Original Function Name")]
     public static void _OnClose_Postfix()
     {
+        s_queryingIndex = -1;
         if (Multiplayer.IsActive)
         {
             Multiplayer.Session.World.ClearPlayerNameTagsOnStarmap();
+            if (Multiplayer.Session.LocalPlayer.IsClient)
+            {
+                Multiplayer.Session.DysonSpheres.UnloadRemoteDysonSpheres();
+            }
         }
     }
 
@@ -65,7 +70,7 @@ internal class UIStarmap_Patch
         }
 
         var starIndex = __instance.focusStar.star.index;
-        if (GameMain.data.dysonSpheres[starIndex] == null)
+        if (GameMain.data.dysonSpheres[starIndex] == null || !Multiplayer.Session.DysonSpheres.LoadedSpheres.Contains(starIndex))
         {
             if (s_queryingIndex != starIndex)
             {

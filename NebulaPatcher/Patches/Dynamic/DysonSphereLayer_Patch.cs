@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using System.Collections.Generic;
 using HarmonyLib;
@@ -18,7 +18,7 @@ internal class DysonSphereLayer_Patch
     [HarmonyPatch(nameof(DysonSphereLayer.NewDysonNode))]
     public static void NewDysonNode_Prefix(DysonSphereLayer __instance, int protoId, Vector3 pos)
     {
-        if (!Multiplayer.IsActive || Multiplayer.Session.DysonSpheres.IsIncomingRequest)
+        if (!Multiplayer.IsActive || Multiplayer.Session.DysonSpheres.IsIncomingRequest || Multiplayer.Session.DysonSpheres.InBlueprint)
         {
             return;
         }
@@ -33,7 +33,7 @@ internal class DysonSphereLayer_Patch
     [HarmonyPatch(nameof(DysonSphereLayer.NewDysonFrame))]
     public static void NewDysonFrame_Prefix(DysonSphereLayer __instance, int protoId, int nodeAId, int nodeBId, bool euler)
     {
-        if (!Multiplayer.IsActive || Multiplayer.Session.DysonSpheres.IsIncomingRequest)
+        if (!Multiplayer.IsActive || Multiplayer.Session.DysonSpheres.IsIncomingRequest || Multiplayer.Session.DysonSpheres.InBlueprint)
         {
             return;
         }
@@ -48,7 +48,7 @@ internal class DysonSphereLayer_Patch
     [HarmonyPatch(nameof(DysonSphereLayer.RemoveDysonFrame))]
     public static void RemoveDysonFrame_Prefix(DysonSphereLayer __instance, int frameId)
     {
-        if (Multiplayer.IsActive && !Multiplayer.Session.DysonSpheres.IsIncomingRequest)
+        if (Multiplayer.IsActive && !Multiplayer.Session.DysonSpheres.IsIncomingRequest && !Multiplayer.Session.DysonSpheres.InBlueprint)
         {
             Multiplayer.Session.Network.SendPacket(new DysonSphereRemoveFramePacket(__instance.starData.index, __instance.id,
                 frameId));
@@ -59,7 +59,7 @@ internal class DysonSphereLayer_Patch
     [HarmonyPatch(nameof(DysonSphereLayer.RemoveDysonNode))]
     public static void RemoveDysonNode_Prefix(DysonSphereLayer __instance, int nodeId)
     {
-        if (Multiplayer.IsActive && !Multiplayer.Session.DysonSpheres.IsIncomingRequest)
+        if (Multiplayer.IsActive && !Multiplayer.Session.DysonSpheres.IsIncomingRequest && !Multiplayer.Session.DysonSpheres.InBlueprint)
         {
             Multiplayer.Session.Network.SendPacket(new DysonSphereRemoveNodePacket(__instance.starData.index, __instance.id,
                 nodeId));
@@ -70,7 +70,7 @@ internal class DysonSphereLayer_Patch
     [HarmonyPatch(nameof(DysonSphereLayer.NewDysonShell))]
     public static void NewDysonShell_Prefix(DysonSphereLayer __instance, int protoId, List<int> nodeIds)
     {
-        if (!Multiplayer.IsActive || Multiplayer.Session.DysonSpheres.IsIncomingRequest)
+        if (!Multiplayer.IsActive || Multiplayer.Session.DysonSpheres.IsIncomingRequest || Multiplayer.Session.DysonSpheres.InBlueprint)
         {
             return;
         }
@@ -85,7 +85,7 @@ internal class DysonSphereLayer_Patch
     [HarmonyPatch(nameof(DysonSphereLayer.RemoveDysonShell))]
     public static void RemoveDysonShell_Prefix(DysonSphereLayer __instance, int shellId)
     {
-        if (Multiplayer.IsActive && !Multiplayer.Session.DysonSpheres.IsIncomingRequest)
+        if (Multiplayer.IsActive && !Multiplayer.Session.DysonSpheres.IsIncomingRequest && !Multiplayer.Session.DysonSpheres.InBlueprint)
         {
             Multiplayer.Session.Network.SendPacket(new DysonSphereRemoveShellPacket(__instance.starData.index, __instance.id,
                 shellId));

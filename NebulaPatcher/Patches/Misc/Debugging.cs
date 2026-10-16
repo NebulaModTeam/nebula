@@ -1,4 +1,4 @@
-﻿#if DEBUG
+#if ENABLE_DEBUG_CHEATS
 
 #region
 

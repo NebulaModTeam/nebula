@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using NebulaAPI.DataStructures;
 using NebulaAPI.Interfaces;

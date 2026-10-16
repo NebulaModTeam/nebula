@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using NebulaAPI.Packets;
 using NebulaModel.Networking;
@@ -16,7 +16,7 @@ internal class DysonSailDataProcessor : PacketProcessor<DysonSailDataPacket>
     protected override void ProcessPacket(DysonSailDataPacket packet, NebulaConnection conn)
     {
         var dysonSphere = GameMain.data.dysonSpheres[packet.StarIndex];
-        if (dysonSphere == null)
+        if (dysonSphere?.swarm == null || !dysonSphere.swarm.OrbitExist(packet.OrbitId))
         {
             return;
         }

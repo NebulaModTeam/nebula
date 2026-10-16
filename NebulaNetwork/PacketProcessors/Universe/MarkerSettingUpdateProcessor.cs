@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using NebulaAPI.Packets;
 using NebulaModel.Logger;
@@ -109,10 +109,17 @@ internal class MarkerSettingUpdateProcessor : PacketProcessor<MarkerSettingUpdat
             }
 
             //Update UI Window too if it is viewing the current marker
-            var window = UIRoot.instance.uiGame.markerWindow;
-            if (window.active && window.markerId == packet.MarkerId && window.factory == factory)
+            var window = UIRoot.instance?.uiGame?.markerWindow;
+            if (window != null && window.active && window.markerId == packet.MarkerId && window.factory == factory)
             {
                 window.markerDesc.Refresh();
+            }
+
+            // If globemap / marker detail is open, refresh nodes
+            var markerDetail = UIRoot.instance?.uiGame?.markerDetail;
+            if (markerDetail != null && markerDetail.active && markerDetail.inspectPlanet == factory.planet)
+            {
+                markerDetail.UpdateNodes();
             }
         }
     }

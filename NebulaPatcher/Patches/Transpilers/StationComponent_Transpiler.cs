@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -334,7 +334,7 @@ public class StationComponent_Transpiler
                     new CodeInstruction(OpCodes.Ldarg_S, 6), // gStationPool
                     new CodeInstruction(OpCodes.Ldloc_S, shipDataRef), // shipData
                     new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(ShipData), "otherGId")),
-                    new CodeInstruction(OpCodes.Ldelem, typeof(StationComponent)),
+                    new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(StationComponent_Transpiler), nameof(IsValidStation))),
                     new CodeInstruction(OpCodes.Brtrue, jmpNormalFlow),
                     new CodeInstruction(OpCodes.Ldloc_S, loopIndex),
                     new CodeInstruction(OpCodes.Ldc_I4_1),
@@ -449,6 +449,11 @@ public class StationComponent_Transpiler
 
             return matcher.InstructionEnumeration();
         }
+    }
+
+    public static bool IsValidStation(StationComponent[] gStationPool, int gid)
+    {
+        return gid > 0 && gStationPool != null && gid < gStationPool.Length && gStationPool[gid] != null;
     }
 
     private delegate void ShipEnterWarpState(StationComponent stationComponent, int j);

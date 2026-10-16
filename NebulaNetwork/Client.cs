@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using System;
 using System.IO;
@@ -82,7 +82,7 @@ public class Client : IClient
             PacketUtils.RegisterAllPacketProcessorsInAssembly(assembly, PacketProcessor as NebulaNetPacketProcessor, false);
         }
 #if DEBUG
-        PacketProcessor.SimulateLatency = true;
+        PacketProcessor.SimulateLatency = false;
 #endif
 
         clientSocket = new WebSocket($"{serverProtocol}://{ServerEndpoint}/socket");

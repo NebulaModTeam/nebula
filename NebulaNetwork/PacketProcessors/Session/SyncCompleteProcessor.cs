@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using NebulaAPI.GameState;
 using NebulaAPI.Networking;
@@ -36,6 +36,12 @@ public class SyncCompleteProcessor : PacketProcessor<SyncComplete>
             }
 
             Multiplayer.Session.World.OnAllPlayersSyncCompleted();
+
+            var currentStar = GameMain.localStar ?? GameMain.data?.localStar ?? GameMain.data?.localPlanet?.star;
+            if (currentStar != null)
+            {
+                PlanetModelingManager.RequestLoadStar(currentStar);
+            }
         }
     }
 
@@ -114,6 +120,34 @@ public class SyncCompleteProcessor : PacketProcessor<SyncComplete>
             player.Data.DIYAppearance.Export(writer.BinaryWriter);
             player.SendPacket(new PlayerMechaDIYArmor(writer.CloseAndGetBytes(), player.Data.DIYItemId,
                 player.Data.DIYItemValue));
+        }
+
+        // if the client has custom dashboard data saved on server, send it to them
+        if (player.Data is NebulaModel.DataStructures.PlayerData playerData)
+        {
+            if ((playerData.DashboardData == null || playerData.DashboardData.Length == 0) &&
+                SaveManager.PlayerSaves.TryGetValue(clientCertHash, out var saved) && saved is NebulaModel.DataStructures.PlayerData savedP &&
+                savedP.DashboardData != null && savedP.DashboardData.Length > 0)
+            {
+                playerData.DashboardData = savedP.DashboardData;
+            }
+
+            if (playerData.DashboardData != null && playerData.DashboardData.Length > 0)
+            {
+                player.SendPacket(new PlayerDashboardPacket(player.Id, playerData.DashboardData));
+            }
+
+            if ((playerData.ReplicatorMultipliersData == null || playerData.ReplicatorMultipliersData.Length == 0) &&
+                SaveManager.PlayerSaves.TryGetValue(clientCertHash, out var saved2) && saved2 is NebulaModel.DataStructures.PlayerData savedP2 &&
+                savedP2.ReplicatorMultipliersData != null && savedP2.ReplicatorMultipliersData.Length > 0)
+            {
+                playerData.ReplicatorMultipliersData = savedP2.ReplicatorMultipliersData;
+            }
+
+            if (playerData.ReplicatorMultipliersData != null && playerData.ReplicatorMultipliersData.Length > 0)
+            {
+                player.SendPacket(new PlayerReplicatorMultipliersPacket(player.Id, playerData.ReplicatorMultipliersData));
+            }
         }
 
         Multiplayer.Session.World.OnAllPlayersSyncCompleted();

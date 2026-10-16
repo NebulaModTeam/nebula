@@ -7,6 +7,7 @@ using HarmonyLib;
 using NebulaModel.Logger;
 using NebulaModel.Packets.Combat.GroundEnemy;
 using NebulaWorld;
+using UnityEngine;
 
 #endregion
 
@@ -188,10 +189,24 @@ internal class EnemyDFGroundSystem_Transpiler
 
         if (Multiplayer.Session.IsServer)
         {
-            // TODO: Sync fighter drones in future. For now stop enemy unit from targeting craft.
             if (enemyUnit.hatred.max.objectType == EObjectType.Craft)
             {
-                enemyUnit.hatred.ClearMax();
+                var craftPool = groundSystem.factory?.craftPool;
+                var craftId = enemyUnit.hatred.max.objectId;
+                var craftValid = craftPool != null && craftId > 0 && craftId < craftPool.Length && craftPool[craftId].id == craftId;
+                if (!craftValid)
+                {
+                    // If the craft is not in the server's local pool (e.g. spawned by client), target the nearest alive player on this planet
+                    var nearestPlayerId = GetNearestPlayerId(planetId, enemyUnit.enemyId, groundSystem);
+                    if (nearestPlayerId > 0)
+                    {
+                        enemyUnit.hatred.HateTarget(ETargetType.Player, nearestPlayerId, 500, 500, EHatredOperation.Set);
+                    }
+                    else
+                    {
+                        enemyUnit.hatred.ClearMax();
+                    }
+                }
             }
             var currentTarget = enemyUnit.hatred.max.target;
             if (targets[enemyId] != currentTarget)
@@ -207,6 +222,30 @@ internal class EnemyDFGroundSystem_Transpiler
             enemyUnit.hatred.max.target = targets[enemyId]; // overwrite with value from server
             enemyUnit.hatred.max.value = 100000; // dummy max value
         }
+    }
+
+    private static int GetNearestPlayerId(int planetId, int enemyId, EnemyDFGroundSystem groundSystem)
+    {
+        var players = Multiplayer.Session.Combat.Players;
+        if (players == null || players.Length == 0 || groundSystem?.factory?.enemyPool == null) return 0;
+        ref var enemy = ref groundSystem.factory.enemyPool[enemyId];
+        var enemyPos = (Vector3)enemy.pos;
+
+        var nearestId = 0;
+        var nearestDist2 = float.MaxValue;
+        for (var i = 0; i < players.Length; i++)
+        {
+            if (players[i].planetId == planetId && players[i].isAlive)
+            {
+                var d2 = Vector3.SqrMagnitude(players[i].position - enemyPos);
+                if (d2 < nearestDist2)
+                {
+                    nearestDist2 = d2;
+                    nearestId = players[i].id;
+                }
+            }
+        }
+        return nearestId;
     }
 
     [HarmonyTranspiler]

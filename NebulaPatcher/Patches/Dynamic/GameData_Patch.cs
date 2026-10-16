@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using System;
 using System.IO;
@@ -223,6 +223,13 @@ internal class GameData_Patch
             // Same pattern as galacticTransport.Arragement() below (and vanilla GameData.Import line 936).
             GameMain.data.galacticDigital?.Arragement();
 
+            if (UIRoot.instance?.uiGame?.markerDetail != null && planet != null && planet.factory != null)
+            {
+                UIRoot.instance.uiGame.markerDetail.inspectPlanet = null;
+                UIRoot.instance.uiGame.markerDetail.SetInspectPlanet(planet);
+                UIRoot.instance.uiGame.markerDetail.UpdateNodes();
+            }
+
             try
             {
                 NebulaModAPI.OnPlanetLoadFinished?.Invoke(planet.id);
@@ -230,6 +237,25 @@ internal class GameData_Patch
             catch (Exception e)
             {
                 Log.Error("NebulaModAPI.OnPlanetLoadFinished error:\n" + e);
+            }
+
+            if (PlanetManager.PreservedDashboardData != null && PlanetManager.PreservedDashboardData.Length > 0 && GameMain.data?.statistics?.charts != null)
+            {
+                try
+                {
+                    using var ms = new MemoryStream(PlanetManager.PreservedDashboardData);
+                    using var reader = new BinaryReader(ms);
+                    GameMain.data.statistics.charts.Import(reader);
+                }
+                catch (Exception e)
+                {
+                    Log.Warn($"Failed to restore preserved dashboard: {e}");
+                }
+            }
+
+            if (GameStatesManager.PreservedReplicatorMultipliers != null && GameStatesManager.PreservedReplicatorMultipliers.Length > 0)
+            {
+                GameStatesManager.ApplyReplicatorMultipliers(GameStatesManager.PreservedReplicatorMultipliers);
             }
         }
 
@@ -294,6 +320,11 @@ internal class GameData_Patch
             var planet = __instance.galaxy.PlanetById(UIVirtualStarmap_Transpiler.CustomBirthPlanet);
             __instance.ArrivePlanet(planet);
         }
+
+        if (__instance.localStar != null)
+        {
+            PlanetModelingManager.RequestLoadStar(__instance.localStar);
+        }
     }
 
     [HarmonyPostfix, HarmonyPriority(Priority.High)]
@@ -350,6 +381,7 @@ internal class GameData_Patch
         }
         Multiplayer.Session.Network.SendPacket(new PlayerUpdateLocalStarId(Multiplayer.Session.LocalPlayer.Id, star.id));
         Multiplayer.Session.Network.SendPacket(new ILSArriveStarPlanetRequest(star.id));
+        PlanetModelingManager.RequestLoadStar(star);
     }
 
     [HarmonyPrefix]

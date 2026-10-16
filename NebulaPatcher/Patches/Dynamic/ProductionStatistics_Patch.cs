@@ -44,4 +44,23 @@ internal class ProductionStatistics_Patch
         }
         return true;
     }
+
+    /// <summary>
+    /// Clients do not simulate remote factories, so the vanilla power statistics derivation
+    /// (<c>RefreshPowerGenerationCapacites</c> / <c>RefreshPowerConsumptionDemands</c>) would
+    /// dereference null <c>PlanetFactory.powerSystem</c> instances and throw.
+    ///
+    /// The host runs this vanilla code path and streams the resulting values through
+    /// <c>StatisticsPowerDataPacket</c>, so clients skip the local recompute and keep the
+    /// values they received. This makes the Power Dashboard render exactly as in singleplayer.
+    /// </summary>
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(ProductionStatistics.RefreshPowerGenerationCapacites))]
+    [HarmonyPatch(nameof(ProductionStatistics.RefreshPowerConsumptionDemands))]
+    [HarmonyPatch(nameof(ProductionStatistics.RefreshPowerNetworkGenerationCapacites))]
+    [HarmonyPatch(nameof(ProductionStatistics.RefreshPowerNetworkConsumptionDemands))]
+    public static bool RefreshPowerData_Prefix()
+    {
+        return !Multiplayer.IsActive || Multiplayer.Session.LocalPlayer.IsHost;
+    }
 }

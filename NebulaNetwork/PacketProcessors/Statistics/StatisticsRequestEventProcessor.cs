@@ -31,7 +31,7 @@ internal class StatisticsRequestEventProcessor : PacketProcessor<StatisticsReque
         {
             case StatisticEvent.WindowOpened:
                 {
-                    Multiplayer.Session.Statistics.RegisterPlayer(conn, player.Id);
+                    Multiplayer.Session.Statistics.RegisterPlayer(conn, player.Id, packet.AstroFilter);
 
                     using (var writer = new BinaryUtils.Writer())
                     {
@@ -39,6 +39,7 @@ internal class StatisticsRequestEventProcessor : PacketProcessor<StatisticsReque
                         conn.SendPacket(new StatisticsDataPacket(writer.CloseAndGetBytes()));
                     }
                     SendExtraData(conn, packet.AstroFilter);
+                    SendPowerData(conn, packet.AstroFilter);
                     break;
                 }
             case StatisticEvent.WindowClosed:
@@ -46,9 +47,18 @@ internal class StatisticsRequestEventProcessor : PacketProcessor<StatisticsReque
                 break;
 
             case StatisticEvent.AstroFilterChanged:
+                Multiplayer.Session.Statistics.UpdateAstroFilter(player.Id, packet.AstroFilter);
                 SendExtraData(conn, packet.AstroFilter);
+                SendPowerData(conn, packet.AstroFilter);
                 break;
         }
+    }
+
+    private static void SendPowerData(NebulaConnection conn, int astroFilter)
+    {
+        using var writer = new BinaryUtils.Writer();
+        Multiplayer.Session.Statistics.ExportPowerData(writer.BinaryWriter, astroFilter);
+        conn.SendPacket(new StatisticsPowerDataPacket(astroFilter, writer.CloseAndGetBytes()));
     }
 
     static void SendExtraData(NebulaConnection conn, int astroFilter)

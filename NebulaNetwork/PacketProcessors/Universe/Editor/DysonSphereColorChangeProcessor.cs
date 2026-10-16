@@ -1,4 +1,4 @@
-﻿#region
+#region
 
 using System;
 using NebulaAPI.Packets;
@@ -33,7 +33,7 @@ public class DysonSphereColorChangeProcessor : PacketProcessor<DysonSphereColorC
             switch (packet.Type)
             {
                 case DysonSphereColorChangePacket.ComponentType.Node:
-                    var node = packet.Index < layer.nodeCursor ? layer.nodePool[packet.Index] : null;
+                    var node = packet.Index >= 0 && packet.Index < layer.nodeCursor ? layer.nodePool[packet.Index] : null;
                     if (node != null)
                     {
                         node.color = color;
@@ -42,7 +42,7 @@ public class DysonSphereColorChangeProcessor : PacketProcessor<DysonSphereColorC
                     break;
 
                 case DysonSphereColorChangePacket.ComponentType.Frame:
-                    var frame = packet.Index < layer.frameCursor ? layer.framePool[packet.Index] : null;
+                    var frame = packet.Index >= 0 && packet.Index < layer.frameCursor ? layer.framePool[packet.Index] : null;
                     if (frame != null)
                     {
                         frame.color = color;
@@ -51,7 +51,7 @@ public class DysonSphereColorChangeProcessor : PacketProcessor<DysonSphereColorC
                     break;
 
                 case DysonSphereColorChangePacket.ComponentType.Shell:
-                    var shell = packet.Index < layer.shellCursor ? layer.shellPool[packet.Index] : null;
+                    var shell = packet.Index >= 0 && packet.Index < layer.shellCursor ? layer.shellPool[packet.Index] : null;
                     if (shell != null)
                     {
                         shell.color = color;
